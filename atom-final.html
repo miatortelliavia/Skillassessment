@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atom — Skills Assessment</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --yellow: #FFC800;
+  --orange: #FF7800;
+  --red: #D70000;
+  --navy: #00005F;
+  --sky: #55C3F0;
+  --navy-light: #00007A;
+  --navy-dark: #000040;
+  --surface: #00004A;
+  --surface2: #000038;
+  --border: rgba(85,195,240,0.15);
+  --border-bright: rgba(85,195,240,0.35);
+  --text: #E8F4FF;
+  --text-muted: rgba(232,244,255,0.6);
+  --text-hint: rgba(232,244,255,0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--navy-dark);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.atom-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  height: 700px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+}
+
+.app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--surface2);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo { padding: 1.75rem 1.5rem 1.25rem; border-bottom: 1px solid var(--border); }
+.atom-mark { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.atom-icon { width: 28px; height: 28px; flex-shrink: 0; }
+.sidebar-logo h1 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: 0.12em; text-transform: uppercase; }
+.sidebar-logo .tagline { font-size: 10px; color: var(--text-hint); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; }
+.sidebar-name { font-size: 12px; color: var(--yellow); font-weight: 500; margin-top: 4px; display: block; }
+.mode-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 3px; margin-top: 6px; }
+.mode-self { background: rgba(255,200,0,0.15); color: var(--yellow); border: 1px solid rgba(255,200,0,0.3); }
+.mode-peer { background: rgba(85,195,240,0.15); color: var(--sky); border: 1px solid rgba(85,195,240,0.3); }
+
+.pb-outer { margin: 1rem 1.5rem 0.25rem; height: 2px; background: var(--border); border-radius: 1px; }
+.pb-inner { height: 2px; background: linear-gradient(90deg, var(--yellow), var(--orange)); border-radius: 1px; transition: width 0.5s ease; }
+.pb-label { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); padding: 0 1.5rem 0.75rem; }
+
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 0.45rem 1.5rem; cursor: pointer; font-size: 12.5px; color: var(--text-muted); border: none; background: none; width: 100%; text-align: left; transition: all 0.15s; font-family: 'Space Grotesk', sans-serif; border-left: 2px solid transparent; }
+.nav-item:hover { background: rgba(85,195,240,0.05); color: var(--text); }
+.nav-item.active { background: rgba(255,200,0,0.08); color: var(--yellow); border-left-color: var(--yellow); font-weight: 500; }
+.nav-item.done .nav-dot { background: var(--yellow); box-shadow: 0 0 6px rgba(255,200,0,0.4); }
+.nav-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border-bright); flex-shrink: 0; transition: all 0.2s; }
+.nav-item.active .nav-dot { background: var(--yellow); }
+.nav-divider { height: 1px; background: var(--border); margin: 0.75rem 1.5rem; }
+.nav-special-btn { display: flex; align-items: center; gap: 10px; padding: 0.45rem 1.5rem; cursor: pointer; font-size: 12.5px; color: var(--text-muted); border: none; background: none; width: 100%; text-align: left; transition: all 0.15s; font-family: 'Space Grotesk', sans-serif; border-left: 2px solid transparent; }
+.nav-special-btn:hover { background: rgba(85,195,240,0.05); color: var(--sky); }
+.nav-special-btn.active { background: rgba(85,195,240,0.08); color: var(--sky); border-left-color: var(--sky); font-weight: 500; }
+
+.main { flex: 1; padding: 3rem 4rem; max-width: 860px; }
+
+.block-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-hint); font-family: 'JetBrains Mono', monospace; margin-bottom: 0.5rem; }
+.block-title { font-size: 28px; font-weight: 300; line-height: 1.15; margin-bottom: 0.6rem; }
+.block-title em { font-style: italic; color: var(--yellow); }
+.block-desc { font-size: 13.5px; color: var(--text-muted); max-width: 540px; line-height: 1.7; margin-bottom: 2.5rem; }
+
+.skill-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.25rem; overflow: hidden; transition: border-color 0.2s; }
+.skill-card:hover { border-color: var(--border-bright); }
+.skill-card-header { padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.skill-id { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--yellow); margin-bottom: 3px; letter-spacing: 0.1em; }
+.skill-name { font-size: 14.5px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.skill-subdesc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+.nr-btn { font-size: 11px; color: var(--text-hint); border: 1px solid var(--border); background: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; font-family: 'JetBrains Mono', monospace; }
+.nr-btn:hover { border-color: var(--border-bright); color: var(--text-muted); }
+.nr-btn.active { background: rgba(215,0,0,0.1); color: var(--red); border-color: rgba(215,0,0,0.3); text-decoration: line-through; }
+.skill-body { border-top: 1px solid var(--border); padding: 1.25rem 1.5rem; }
+.skill-body.dimmed { opacity: 0.25; pointer-events: none; }
+
+.rating-row { display: flex; gap: 8px; margin-bottom: 0.6rem; }
+.rb { flex: 1; max-width: 52px; aspect-ratio: 1; border: 1px solid var(--border); background: none; border-radius: 8px; font-size: 15px; font-weight: 500; font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: all 0.15s; color: var(--text-hint); display: flex; align-items: center; justify-content: center; }
+.rb:hover { border-color: var(--yellow); color: var(--yellow); background: rgba(255,200,0,0.05); }
+.rb.s1 { background: rgba(85,195,240,0.15); border-color: rgba(85,195,240,0.4); color: var(--sky); }
+.rb.s2 { background: rgba(85,195,240,0.25); border-color: var(--sky); color: var(--sky); }
+.rb.s3 { background: rgba(255,120,0,0.2); border-color: rgba(255,120,0,0.6); color: var(--orange); }
+.rb.s4 { background: rgba(255,200,0,0.2); border-color: rgba(255,200,0,0.6); color: var(--yellow); }
+.rb.s5 { background: rgba(255,200,0,0.3); border-color: var(--yellow); color: var(--yellow); box-shadow: 0 0 10px rgba(255,200,0,0.2); }
+.lvl-labels { display: flex; gap: 8px; margin-bottom: 1rem; }
+.ll { flex: 1; max-width: 52px; font-size: 9px; color: var(--text-hint); text-align: center; line-height: 1.3; font-family: 'JetBrains Mono', monospace; }
+
+.ind-toggle { font-size: 11px; color: var(--sky); cursor: pointer; background: none; border: none; padding: 0; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 5px; letter-spacing: 0.04em; }
+.ind-toggle:hover { color: var(--text); }
+.ind-panel { display: none; margin-top: 1rem; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+.ind-panel.open { display: block; }
+.ind-level { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
+.ind-level:last-child { border-bottom: none; }
+.in { font-size: 11px; font-weight: 500; font-family: 'JetBrains Mono', monospace; min-width: 16px; padding-top: 1px; }
+.c1 { color: rgba(85,195,240,0.5); } .c2 { color: var(--sky); } .c3 { color: var(--orange); } .c4 { color: var(--yellow); } .c5 { color: var(--yellow); text-shadow: 0 0 8px rgba(255,200,0,0.5); }
+.ic { flex: 1; }
+.iname { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+.ilist { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.ilist li { font-size: 11.5px; color: var(--text-muted); padding-left: 12px; position: relative; line-height: 1.5; }
+.ilist li::before { content: '·'; position: absolute; left: 0; color: var(--text-hint); }
+
+.team-q { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+.tq-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.tq-desc { font-size: 12px; color: var(--text-hint); margin-bottom: 0.875rem; line-height: 1.6; }
+.tq-ta { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13.5px; font-family: 'Space Grotesk', sans-serif; color: var(--text); background: var(--surface2); resize: vertical; min-height: 90px; outline: none; transition: border-color 0.15s; line-height: 1.6; }
+.tq-ta:focus { border-color: var(--sky); }
+
+.peer-select-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.peer-select-wrap label { display: block; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.peer-select { width: 100%; max-width: 320px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: 'Space Grotesk', sans-serif; color: var(--text); background: var(--surface2); outline: none; cursor: pointer; appearance: none; transition: border-color 0.15s; }
+.peer-select:focus { border-color: var(--sky); }
+.peer-warning { font-size: 12px; color: var(--orange); margin-top: 8px; font-family: 'JetBrains Mono', monospace; line-height:1.5; }
+
+.intro-screen { max-width: 580px; }
+.intro-screen h2 { font-size: 38px; font-weight: 300; line-height: 1.1; margin-bottom: 1.25rem; }
+.intro-screen h2 em { font-style: italic; color: var(--yellow); }
+.intro-screen p { color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.7; font-size: 14px; }
+.mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.75rem 0; }
+.mode-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s; text-align: left; }
+.mode-card:hover { border-color: var(--border-bright); }
+.mode-card.selected-self { border-color: var(--yellow); background: rgba(255,200,0,0.05); }
+.mode-card.selected-peer { border-color: var(--sky); background: rgba(85,195,240,0.05); }
+.mode-card-icon { font-size: 22px; margin-bottom: 8px; }
+.mode-card-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.mode-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+.ni-wrap { margin-bottom: 1.5rem; }
+.ni-wrap label { display: block; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.ni-wrap input { border: 1px solid var(--border); border-radius: 8px; padding: 11px 16px; font-size: 15px; font-family: 'Space Grotesk', sans-serif; color: var(--text); background: var(--surface); outline: none; width: 100%; max-width: 320px; transition: border-color 0.15s; }
+.ni-wrap input:focus { border-color: var(--yellow); }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; border-radius: 8px; font-size: 13.5px; font-weight: 500; font-family: 'Space Grotesk', sans-serif; cursor: pointer; transition: all 0.15s; border: none; letter-spacing: 0.02em; }
+.btn-p { background: var(--yellow); color: var(--navy-dark); }
+.btn-p:hover { background: #FFD440; transform: translateY(-1px); }
+.btn-g { background: none; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-g:hover { border-color: var(--border-bright); color: var(--text); }
+.btn-sky { background: rgba(85,195,240,0.15); color: var(--sky); border: 1px solid rgba(85,195,240,0.3); }
+.btn-sky:hover { background: rgba(85,195,240,0.25); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.75rem; border-top: 1px solid var(--border); }
+.nav-ctr { font-size: 11px; color: var(--text-hint); font-family: 'JetBrains Mono', monospace; }
+
+.radar-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
+.radar-wrap h3 { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+.results-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+.legend-line { width: 24px; height: 2px; border-radius: 1px; }
+.results-detail { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+.result-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.25rem; }
+.rl { flex: 1; font-size: 12.5px; color: var(--text-muted); }
+.rl span { font-family: 'JetBrains Mono', monospace; color: var(--yellow); font-size: 10px; margin-right: 6px; }
+.score-chip { display: flex; align-items: center; gap: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+.score-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.save-banner { background: rgba(255,200,0,0.08); border: 1px solid rgba(255,200,0,0.2); border-radius: 8px; padding: 0.875rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.save-banner p { font-size: 12.5px; color: rgba(255,200,0,0.8); line-height: 1.5; }
+
+.who-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+.person-chip { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px 5px 6px; font-size: 12.5px; color: var(--text-muted); }
+.p-avatar { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,200,0,0.15); color: var(--yellow); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+.p-count { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); margin-left: 4px; }
+.ta-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 8px; }
+.ta-author { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--yellow); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.ta-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.fb-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
+.fb-box h3 { font-size: 13px; font-weight: 500; margin-bottom: 0.75rem; }
+.exp-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.section-wrap { margin-bottom: 2rem; }
+.section-title { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+.loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--text-hint); font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+.error-msg { background: rgba(215,0,0,0.1); border: 1px solid rgba(215,0,0,0.3); border-radius: 8px; padding: 1rem 1.25rem; font-size: 13px; color: var(--red); font-family: 'JetBrains Mono', monospace; margin-bottom: 1rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<svg class="atom-bg" viewBox="0 0 700 700">
+  <circle cx="350" cy="350" r="30" fill="#55C3F0" opacity="0.6"/>
+  <ellipse cx="350" cy="350" rx="280" ry="100" stroke="#55C3F0" stroke-width="1" fill="none"/>
+  <ellipse cx="350" cy="350" rx="280" ry="100" stroke="#55C3F0" stroke-width="1" fill="none" transform="rotate(60 350 350)"/>
+  <ellipse cx="350" cy="350" rx="280" ry="100" stroke="#55C3F0" stroke-width="1" fill="none" transform="rotate(120 350 350)"/>
+  <circle cx="350" cy="350" r="160" stroke="#55C3F0" stroke-width="0.8" fill="none"/>
+  <circle cx="350" cy="350" r="80" stroke="#55C3F0" stroke-width="0.8" fill="none"/>
+</svg>
+
+<div class="app">
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="atom-mark">
+      <svg class="atom-icon" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="3" fill="#FFC800"/>
+        <ellipse cx="14" cy="14" rx="12" ry="5" stroke="#55C3F0" stroke-width="1" fill="none"/>
+        <ellipse cx="14" cy="14" rx="12" ry="5" stroke="#55C3F0" stroke-width="1" fill="none" transform="rotate(60 14 14)"/>
+        <ellipse cx="14" cy="14" rx="12" ry="5" stroke="#55C3F0" stroke-width="1" fill="none" transform="rotate(120 14 14)"/>
+      </svg>
+      <h1>Atom</h1>
+    </div>
+    <div class="tagline">skills assessment</div>
+    <span class="sidebar-name" id="sidebarName"></span>
+    <div id="modeIndicator"></div>
+  </div>
+  <div class="pb-outer"><div class="pb-inner" id="pb" style="width:0%"></div></div>
+  <div class="pb-label" id="pbLabel"></div>
+  <div id="nav"></div>
+  <div class="nav-divider"></div>
+  <button class="nav-special-btn" id="teamOverviewBtn">◎ &nbsp;Team overview</button>
+</nav>
+<main class="main" id="main"><div class="loading">initialising…</div></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const JSONBIN_KEY = '$2a$10$59CH8IHDXkOID5K4zGasEOHAeS/pIvTRSkFqlfm5Xf8KhHm5Ebh02';
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
+const BIN_NAME = 'atom-assessment-data';
+
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const BLOCKS = [
+  { id:'intro', navLabel:'Start', type:'intro' },
+  {
+    id:'A', navLabel:'Self-mastery',
+    title:'Self-mastery', desc:'Knowing yourself — your emotions, triggers, values, and the impact you have on others.',
+    skills:[{
+      id:'A1', name:'Emotional intelligence & self-awareness',
+      desc:'Knowing your emotions, triggers, values, and the impact you have on others.',
+      indicators:[
+        {level:1,name:'Beginner',items:['You can name basic emotions in yourself and recognise them in others.','You understand that people have different values and beliefs.']},
+        {level:2,name:'Advanced beginner',items:['You recognise nuanced emotional states and can name them.','You are aware of your core values and how they influence your behaviour.']},
+        {level:3,name:'Practitioner',items:['You can name your emotional state in the moment, even under pressure.','You recognise your blind spots and actively work on them.']},
+        {level:4,name:'Guide',items:['You know your triggers in advance and have strategies to work with them.','You extract learning from your experiences systematically.']},
+        {level:5,name:'Catalyst',items:['You know yourself deeply at any given moment.','Your self-awareness visibly influences those around you.']}
+      ]
+    }]
+  },
+  {
+    id:'D', navLabel:'Facilitation',
+    title:'Facilitation', desc:'Designing and running sessions that help groups collaborate, align, and achieve outcomes together.',
+    skills:[{
+      id:'D2', name:'Facilitation delivery',
+      desc:'Moderating groups live — steering energy, holding neutrality, managing conflict in the room.',
+      indicators:[
+        {level:1,name:'Beginner',items:['You follow a prepared agenda and keep the group on time.','You understand the difference between facilitating and presenting.']},
+        {level:2,name:'Advanced beginner',items:['You keep groups focused and redirect off-topic discussions.','You use techniques to encourage equal participation.']},
+        {level:3,name:'Practitioner',items:['You adapt your approach in real time when dynamics shift.','You surface and work through conflict constructively.']},
+        {level:4,name:'Guide',items:['You intuitively read the room and adjust without losing the group.','You facilitate high-stakes sessions confidently.']},
+        {level:5,name:'Catalyst',items:['You deliver facilitation in complex, resistant environments.','You are sought out as a facilitation authority.']}
+      ]
+    }]
+  },
+  {
+    id:'I', navLabel:'Project mgmt',
+    title:'Project management & administration', desc:'Keeping the operation running — planning, documentation, and vendor coordination.',
+    skills:[{
+      id:'I2', name:'Documentation & knowledge management',
+      desc:'Creating, maintaining, and structuring knowledge so it stays accessible and genuinely useful.',
+      indicators:[
+        {level:1,name:'Beginner',items:['You understand why documentation matters and can follow an existing structure.','You know where to find and store information in the team\'s system.']},
+        {level:2,name:'Advanced beginner',items:['You create and update documentation independently and keep it current.','You write for your audience, not just for yourself.']},
+        {level:3,name:'Practitioner',items:['You design structures that others find intuitive.','You proactively identify and fill knowledge gaps.']},
+        {level:4,name:'Guide',items:['You define knowledge management standards and information architecture.','You ensure knowledge is actively used, not just stored.']},
+        {level:5,name:'Catalyst',items:['You build systems that outlive your involvement.','You introduce new approaches and inspire others to rethink knowledge work.']}
+      ]
+    }]
+  },
+  { id:'team-q', navLabel:'Team level', type:'team-q', title:'Team-level reflection', desc:'One question about us as a team — what you observe collectively.' },
+  { id:'results', navLabel:'My results', type:'results', title:'Results' }
+];
+
+const CORE_BLOCKS = BLOCKS.filter(b=>b.skills);
+const ALL_SKILLS = CORE_BLOCKS.flatMap(b=>b.skills);
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let S = { name:'', mode:'', cur:0, scores:{}, teamAnswer:'', feedback:'', viewingTeam:false, peerTarget:'' };
+let BIN_ID = null;
+let DB = { submissions:[] };
+let chartSelf=null, chartTeam=null;
+
+// ─── JSONBIN API ──────────────────────────────────────────────────────────────
+async function initDB() {
+  // Try to find existing bin
+  try {
+    const r = await fetch(`${JSONBIN_BASE}/b?tagName=${BIN_NAME}`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    const data = await r.json();
+    if(data.result && data.result.length > 0) {
+      BIN_ID = data.result[0].record.metadata.id;
+      await loadDB();
+      return;
+    }
+  } catch(e) {}
+
+  // Create new bin
+  try {
+    const r = await fetch(`${JSONBIN_BASE}/b`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY,
+        'X-Bin-Name': BIN_NAME,
+        'X-Bin-Private': 'true'
+      },
+      body: JSON.stringify({ submissions: [] })
+    });
+    const data = await r.json();
+    BIN_ID = data.metadata.id;
+    DB = { submissions: [] };
+  } catch(e) {
+    console.error('JSONBin init failed', e);
+  }
+}
+
+async function loadDB() {
+  if(!BIN_ID) return;
+  try {
+    const r = await fetch(`${JSONBIN_BASE}/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    const data = await r.json();
+    DB = data.record || { submissions: [] };
+  } catch(e) { console.error('loadDB failed', e); }
+}
+
+async function saveDB() {
+  if(!BIN_ID) return;
+  try {
+    await fetch(`${JSONBIN_BASE}/b/${BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY
+      },
+      body: JSON.stringify(DB)
+    });
+  } catch(e) { console.error('saveDB failed', e); }
+}
+
+function slug(s){ return (s||'').toLowerCase().replace(/\s+/g,'_'); }
+
+function upsertSubmission(obj) {
+  if(!DB.submissions) DB.submissions = [];
+  const key = obj.mode==='self' ? `self:${slug(obj.name)}` : `peer:${slug(obj.peerTarget)}:${slug(obj.name)}`;
+  const idx = DB.submissions.findIndex(s=>s._key===key);
+  const entry = { ...obj, _key:key, savedAt: new Date().toISOString() };
+  if(idx>=0) DB.submissions[idx] = entry;
+  else DB.submissions.push(entry);
+}
+
+async function saveMyData() {
+  upsertSubmission({ name:S.name, mode:S.mode, peerTarget:S.peerTarget, scores:S.scores, teamAnswer:S.teamAnswer, feedback:S.feedback });
+  await saveDB();
+}
+
+function getSelfs() { return (DB.submissions||[]).filter(s=>s.mode==='self'); }
+function getPeers() { return (DB.submissions||[]).filter(s=>s.mode==='peer'); }
+
+function loadMyData() {
+  const key = `self:${slug(S.name)}`;
+  const existing = (DB.submissions||[]).find(s=>s._key===key);
+  if(existing) { S.scores=existing.scores||{}; S.teamAnswer=existing.teamAnswer||''; S.feedback=existing.feedback||''; return true; }
+  return false;
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+function renderNav() {
+  const total = BLOCKS.length;
+  const pct = S.viewingTeam ? 100 : (S.cur/(total-1))*100;
+  document.getElementById('pb').style.width = pct+'%';
+  document.getElementById('pbLabel').textContent = S.viewingTeam ? 'team view' : `${S.cur} / ${total-1}`;
+  document.getElementById('sidebarName').textContent = S.name || '';
+  const mi = document.getElementById('modeIndicator');
+  if(S.mode==='self') mi.innerHTML='<span class="mode-indicator mode-self">◉ self-assessment</span>';
+  else if(S.mode==='peer') mi.innerHTML=`<span class="mode-indicator mode-peer">◎ rating ${S.peerTarget}</span>`;
+  else mi.innerHTML='';
+  const el=document.getElementById('nav');
+  el.innerHTML='';
+  BLOCKS.forEach((b,i)=>{
+    if(b.id==='intro') return;
+    const done=b.skills&&b.skills.every(s=>{const sc=S.scores[s.id];return sc&&(sc.nr||sc.v);});
+    const btn=document.createElement('button');
+    btn.className='nav-item'+(!S.viewingTeam&&i===S.cur?' active':'')+(done?' done':'');
+    btn.innerHTML=`<span class="nav-dot"></span>${b.navLabel}`;
+    btn.onclick=()=>{S.viewingTeam=false;S.cur=i;render();};
+    el.appendChild(btn);
+  });
+  const tb=document.getElementById('teamOverviewBtn');
+  if(tb) tb.className='nav-special-btn'+(S.viewingTeam?' active':'');
+}
+
+// ─── SKILL CARD ───────────────────────────────────────────────────────────────
+function skillCard(s) {
+  const sc=S.scores[s.id]||{}, nr=sc.nr||false;
+  const rb=[1,2,3,4,5].map(n=>`<button class="rb${sc.v===n?' s'+n:''}" data-s="${s.id}" data-v="${n}">${n}</button>`).join('');
+  const ll=['Beginner','Adv.beg.','Practitioner','Guide','Catalyst'].map(n=>`<div class="ll">${n}</div>`).join('');
+  const ind=s.indicators.map(ind=>`
+    <div class="ind-level">
+      <div class="in c${ind.level}">${ind.level}</div>
+      <div class="ic">
+        <div class="iname">${ind.name}</div>
+        <ul class="ilist">${ind.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+      </div>
+    </div>`).join('');
+  return `<div class="skill-card">
+    <div class="skill-card-header">
+      <div>
+        <div class="skill-id">${s.id}</div>
+        <div class="skill-name">${s.name}</div>
+        <div class="skill-subdesc">${s.desc}</div>
+      </div>
+      <button class="nr-btn${nr?' active':''}" data-s="${s.id}">${nr?'n/a':'mark n/a'}</button>
+    </div>
+    <div class="skill-body${nr?' dimmed':''}" id="body-${s.id}">
+      <div class="rating-row">${rb}</div>
+      <div class="lvl-labels">${ll}</div>
+      <button class="ind-toggle" data-s="${s.id}"><span>▾</span> level indicators</button>
+      <div class="ind-panel" id="ind-${s.id}">${ind}</div>
+    </div>
+  </div>`;
+}
+
+function footer(cur,total) {
+  return `<div class="nav-footer">
+    ${cur>1?`<button class="btn btn-g" id="prevBtn">← back</button>`:'<span></span>'}
+    <span class="nav-ctr">${cur} of ${total-1}</span>
+    <button class="btn btn-p" id="nextBtn">${cur===total-2?'see results →':'next →'}</button>
+  </div>`;
+}
+
+function attachSkillEvents(block) {
+  document.querySelectorAll('.rb').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=btn.dataset.s,val=parseInt(btn.dataset.v);
+      if(!S.scores[id])S.scores[id]={};
+      S.scores[id].v=val;
+      document.querySelectorAll(`.rb[data-s="${id}"]`).forEach(b=>b.className='rb');
+      btn.className=`rb s${val}`;
+      await saveMyData();
+    };
+  });
+  document.querySelectorAll('.nr-btn').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=btn.dataset.s;
+      if(!S.scores[id])S.scores[id]={};
+      const nr=!S.scores[id].nr;
+      S.scores[id].nr=nr;
+      btn.textContent=nr?'n/a':'mark n/a';
+      btn.classList.toggle('active',nr);
+      document.getElementById('body-'+id)?.classList.toggle('dimmed',nr);
+      await saveMyData();
+    };
+  });
+  document.querySelectorAll('.ind-toggle').forEach(btn=>{
+    btn.onclick=()=>{
+      const panel=document.getElementById('ind-'+btn.dataset.s);
+      panel.classList.toggle('open');
+      btn.querySelector('span').textContent=panel.classList.contains('open')?'▴':'▾';
+    };
+  });
+  document.getElementById('nextBtn').onclick=()=>{S.cur++;render();window.scrollTo(0,0);};
+  document.getElementById('prevBtn')&&(document.getElementById('prevBtn').onclick=()=>{S.cur--;render();window.scrollTo(0,0);});
+}
+
+// ─── SCREENS ─────────────────────────────────────────────────────────────────
+async function renderMain() {
+  const m=document.getElementById('main');
+  const total=BLOCKS.length;
+  if(S.viewingTeam){ await renderTeamOverview(m); return; }
+  const b=BLOCKS[S.cur];
+
+  // INTRO
+  if(b.type==='intro') {
+    await loadDB();
+    const selfNames=getSelfs().map(s=>s.name);
+    m.innerHTML=`<div class="intro-screen">
+      <h2>Atom<br><em>Skills Assessment</em></h2>
+      <p>Rate yourself or a colleague across 3 sample skills on a 1–5 scale. Level indicators are available inline for each skill. Results are saved automatically.</p>
+      <div class="mode-cards">
+        <div class="mode-card" id="modeCardSelf">
+          <div class="mode-card-icon">◉</div>
+          <div class="mode-card-title">Self-assessment</div>
+          <div class="mode-card-desc">Rate your own skills honestly and reflect on your level.</div>
+        </div>
+        <div class="mode-card" id="modeCardPeer">
+          <div class="mode-card-icon">◎</div>
+          <div class="mode-card-title">Rate a colleague</div>
+          <div class="mode-card-desc">Anonymously rate another team member's skills.</div>
+        </div>
+      </div>
+      <div class="ni-wrap">
+        <label>Your name</label>
+        <input type="text" id="nameInput" placeholder="First name" value="${S.name}" />
+      </div>
+      <div id="peerTargetWrap" style="display:none">
+        <div class="peer-select-wrap">
+          <label>Who are you rating?</label>
+          ${selfNames.length>0
+            ?`<select class="peer-select" id="peerSelect">
+                <option value="">— select a colleague —</option>
+                ${selfNames.map(n=>`<option value="${n}"${S.peerTarget===n?' selected':''}>${n}</option>`).join('')}
+              </select>`
+            :`<p class="peer-warning">No self-assessments found yet.<br>Ask your colleagues to complete their self-assessment first, then come back to rate them.</p>`
+          }
+        </div>
+      </div>
+      <button class="btn btn-p" id="startBtn">begin →</button>
+    </div>`;
+
+    let selMode=S.mode||'';
+    const cs=document.getElementById('modeCardSelf');
+    const cp=document.getElementById('modeCardPeer');
+    const pw=document.getElementById('peerTargetWrap');
+    function upd(){
+      cs.className='mode-card'+(selMode==='self'?' selected-self':'');
+      cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');
+      pw.style.display=selMode==='peer'?'block':'none';
+    }
+    upd();
+    cs.onclick=()=>{selMode='self';S.mode='self';upd();};
+    cp.onclick=()=>{selMode='peer';S.mode='peer';upd();};
+    document.getElementById('nameInput').oninput=e=>{S.name=e.target.value;};
+    document.getElementById('peerSelect')&&(document.getElementById('peerSelect').onchange=e=>{S.peerTarget=e.target.value;});
+    document.getElementById('startBtn').onclick=()=>{
+      const n=document.getElementById('nameInput').value.trim();
+      if(!n){document.getElementById('nameInput').focus();return;}
+      if(!selMode) return;
+      if(selMode==='peer'&&!S.peerTarget) return;
+      S.name=n; S.mode=selMode;
+      if(selMode==='self') loadMyData();
+      else { S.scores={}; S.teamAnswer=''; S.feedback=''; }
+      S.cur=1; render(); window.scrollTo(0,0);
+    };
+    return;
+  }
+
+  // TEAM QUESTION
+  if(b.type==='team-q') {
+    m.innerHTML=`
+      <div class="block-tag">team level</div>
+      <h2 class="block-title">Team-level <em>reflection</em></h2>
+      <p class="block-desc">${b.desc}</p>
+      <div class="team-q">
+        <div class="tq-title">Collective strengths</div>
+        <div class="tq-desc">What can we do together that none of us could do alone? Think about how our combination of skills, styles, and experiences creates something greater than the sum of parts.</div>
+        <textarea class="tq-ta" id="teamAns" placeholder="Your thoughts…">${S.teamAnswer}</textarea>
+      </div>
+      ${footer(S.cur,total)}`;
+    document.getElementById('teamAns').oninput=async e=>{S.teamAnswer=e.target.value;await saveMyData();};
+    document.getElementById('nextBtn').onclick=()=>{S.cur++;render();window.scrollTo(0,0);};
+    document.getElementById('prevBtn')&&(document.getElementById('prevBtn').onclick=()=>{S.cur--;render();window.scrollTo(0,0);});
+    return;
+  }
+
+  // RESULTS
+  if(b.type==='results') {
+    await loadDB();
+    const labels=CORE_BLOCKS.map(b=>b.navLabel);
+    const selfData=CORE_BLOCKS.map(b=>{
+      const vals=b.skills.map(s=>{const sc=S.scores[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);
+      return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;
+    });
+
+    let peerData=null, peerCount=0;
+    if(S.mode==='self') {
+      const myPeers=getPeers().filter(p=>p.peerTarget===S.name);
+      peerCount=myPeers.length;
+      if(myPeers.length>0) {
+        peerData=CORE_BLOCKS.map(b=>{
+          const vals=[];
+          myPeers.forEach(p=>b.skills.forEach(s=>{const sc=(p.scores||{})[s.id]||{};if(!sc.nr&&sc.v)vals.push(sc.v);}));
+          return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;
+        });
+      }
+    }
+
+    const detailRows=ALL_SKILLS.map(s=>{
+      const sc=S.scores[s.id]||{};
+      const sv=sc.nr?null:(sc.v||null);
+      let peerVal=null;
+      if(peerData) {
+        const bIdx=CORE_BLOCKS.findIndex(b=>b.skills.some(x=>x.id===s.id));
+        peerVal=bIdx>=0?peerData[bIdx]:null;
+      }
+      return `<div class="result-row">
+        <div class="rl"><span>${s.id}</span>${s.name}</div>
+        <div style="display:flex;gap:16px;align-items:center">
+          ${sv?`<div class="score-chip"><div class="score-dot" style="background:#FFC800"></div><span style="color:#FFC800;font-weight:500">${sv}</span><span style="font-size:9px;color:var(--text-hint);margin-left:2px">self</span></div>`:`<span style="font-size:10px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">N/A</span>`}
+          ${peerVal?`<div class="score-chip"><div class="score-dot" style="background:#55C3F0"></div><span style="color:#55C3F0;font-weight:500">${peerVal}</span><span style="font-size:9px;color:var(--text-hint);margin-left:2px">peers</span></div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+
+    m.innerHTML=`
+      <div class="block-tag">results</div>
+      <h2 class="block-title">${S.name?S.name+"'s":'Your'} <em>profile</em></h2>
+      <p class="block-desc">${S.mode==='self'
+        ?peerCount>0?`Your self-assessment with ${peerCount} peer rating${peerCount>1?'s':''} overlaid.`
+        :'Your self-assessment. Peer ratings will appear once colleagues have rated you.'
+        :`Your anonymous rating of ${S.peerTarget}.`}
+      </p>
+      ${S.mode==='self'?`<div class="save-banner">
+        <p>✓ Saved. Go back at any time to update your answers.</p>
+        <button class="btn btn-sky btn-sm" id="viewTeamBtn">team overview →</button>
+      </div>`:''}
+      <div class="results-header">
+        <div class="legend-item"><div class="legend-line" style="background:#FFC800"></div>self-assessment</div>
+        ${peerData?`<div class="legend-item"><div class="legend-line" style="background:#55C3F0"></div>peer average (${peerCount})</div>`:''}
+      </div>
+      <div class="radar-wrap">
+        <h3>radar — average per block</h3>
+        <canvas id="rc" height="290"></canvas>
+      </div>
+      <div class="results-detail">${detailRows}</div>
+      ${S.mode==='self'?`<div class="fb-box">
+        <h3>Pilot feedback</h3>
+        <textarea class="tq-ta" id="fbArea" placeholder="How did the format feel? Were the level indicators useful? Anything missing?">${S.feedback}</textarea>
+      </div>`:''}
+      <div class="exp-row">
+        <button class="btn btn-g" id="restBtn">start over</button>
+      </div>`;
+
+    document.getElementById('fbArea')&&(document.getElementById('fbArea').oninput=async e=>{S.feedback=e.target.value;await saveMyData();});
+    document.getElementById('viewTeamBtn')&&(document.getElementById('viewTeamBtn').onclick=()=>{S.viewingTeam=true;render();});
+    document.getElementById('restBtn').onclick=()=>{
+      if(confirm('Clear your session and start over?')){
+        S={name:'',mode:'',cur:0,scores:{},teamAnswer:'',feedback:'',viewingTeam:false,peerTarget:''};
+        render();
+      }
+    };
+
+    if(window.Chart) {
+      if(chartSelf){chartSelf.destroy();chartSelf=null;}
+      const datasets=[{
+        label:'self',data:selfData,
+        backgroundColor:'rgba(255,200,0,0.1)',borderColor:'#FFC800',borderWidth:2,
+        pointBackgroundColor:'#FFC800',pointRadius:4
+      }];
+      if(peerData) datasets.push({
+        label:`peer avg (${peerCount})`,data:peerData,
+        backgroundColor:'rgba(85,195,240,0.08)',borderColor:'#55C3F0',borderWidth:2,
+        borderDash:[5,4],pointBackgroundColor:'#55C3F0',pointRadius:4
+      });
+      chartSelf=new Chart(document.getElementById('rc'),{
+        type:'radar',
+        data:{labels,datasets},
+        options:{
+          responsive:true,
+          scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:10},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:11,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},
+          plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:11,family:'JetBrains Mono'},boxWidth:16,padding:16}}}
+        }
+      });
+    }
+    return;
+  }
+
+  // STANDARD SKILL BLOCK
+  let html=`<div class="block-tag">block ${b.id}</div><h2 class="block-title">${b.title}</h2><p class="block-desc">${b.desc}</p>`;
+  b.skills.forEach(s=>{html+=skillCard(s);});
+  html+=footer(S.cur,total);
+  m.innerHTML=html;
+  attachSkillEvents(b);
+}
+
+// ─── TEAM OVERVIEW ────────────────────────────────────────────────────────────
+async function renderTeamOverview(m) {
+  m.innerHTML=`<div class="loading">loading team data…</div>`;
+  await loadDB();
+  const selfs=getSelfs(), peers=getPeers();
+  const labels=CORE_BLOCKS.map(b=>b.navLabel);
+  const names=selfs.map(s=>s.name);
+
+  const chips=names.map(n=>{
+    const ini=n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const pc=peers.filter(p=>p.peerTarget===n).length;
+    return `<div class="person-chip"><div class="p-avatar">${ini}</div>${n}${pc>0?`<span class="p-count">${pc} peer${pc>1?'s':''}</span>`:''}</div>`;
+  }).join('');
+
+  const headerCells=names.map(n=>`<th style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap">${n.split(' ')[0]}</th>`).join('');
+
+  function cell(v) {
+    if(!v) return `<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">—</span></td>`;
+    const cols=['','rgba(85,195,240,0.5)','#55C3F0','#FF7800','#FFC800','#FFC800'];
+    return `<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:500;color:${cols[v]}">${v}</span></td>`;
+  }
+
+  const skillRows=ALL_SKILLS.map(s=>{
+    const cells=names.map(n=>{
+      const sub=selfs.find(x=>x.name===n);
+      if(!sub) return cell(null);
+      const sc=(sub.scores||{})[s.id]||{};
+      if(sc.nr) return `<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">n/a</span></td>`;
+      return cell(sc.v||null);
+    }).join('');
+    return `<tr><td style="font-size:12px;color:var(--text-muted);padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-family:'JetBrains Mono',monospace;color:var(--yellow);font-size:10px;margin-right:6px">${s.id}</span>${s.name}</td>${cells}</tr>`;
+  }).join('');
+
+  const colors=['#FFC800','#55C3F0','#FF7800','#D70000','#89D5F5','#FFD440','#FF9D40'];
+  const datasets=selfs.map((sub,i)=>{
+    const data=CORE_BLOCKS.map(b=>{
+      const vals=b.skills.map(s=>{const sc=(sub.scores||{})[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);
+      return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;
+    });
+    const col=colors[i%colors.length];
+    return{label:sub.name,data,backgroundColor:col+'18',borderColor:col,borderWidth:1.5,pointBackgroundColor:col,pointRadius:3};
+  });
+
+  const teamAvg=CORE_BLOCKS.map(b=>{
+    const vals=[];
+    selfs.forEach(sub=>b.skills.forEach(s=>{const sc=(sub.scores||{})[s.id]||{};if(!sc.nr&&sc.v)vals.push(sc.v);}));
+    return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;
+  });
+  if(selfs.length>1) datasets.push({label:'team avg',data:teamAvg,backgroundColor:'transparent',borderColor:'rgba(232,244,255,0.35)',borderWidth:2.5,borderDash:[4,3],pointBackgroundColor:'rgba(232,244,255,0.35)',pointRadius:3});
+
+  const teamAnswers=selfs.filter(s=>s.teamAnswer).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.teamAnswer}</div></div>`).join('');
+  const feedbackItems=selfs.filter(s=>s.feedback).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.feedback}</div></div>`).join('');
+
+  m.innerHTML=`
+    <div class="block-tag">team overview</div>
+    <h2 class="block-title">Team <em>results</em></h2>
+    <p class="block-desc">${selfs.length} self-assessment${selfs.length!==1?'s':''} · ${peers.length} peer rating${peers.length!==1?'s':''} · updates on refresh</p>
+    <div class="who-row">${chips||'<span style="font-size:12px;color:var(--text-hint)">no submissions yet</span>'}</div>
+    ${selfs.length>0?`
+    <div class="section-wrap">
+      <div class="section-title">radar — self-assessments + team average</div>
+      <div class="radar-wrap"><canvas id="overviewRadar" height="320"></canvas></div>
+    </div>
+    <div class="section-wrap">
+      <div class="section-title">individual scores by skill</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr>
+            <th style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border)">skill</th>
+            ${headerCells}
+          </tr></thead>
+          <tbody>${skillRows}</tbody>
+        </table>
+      </div>
+    </div>
+    ${teamAnswers?`<div class="section-wrap"><div class="section-title">team question — collective strengths</div>${teamAnswers}</div>`:''}
+    ${feedbackItems?`<div class="section-wrap"><div class="section-title">pilot feedback</div>${feedbackItems}</div>`:''}
+    <div class="exp-row"><button class="btn btn-g" id="refreshBtn">↻ refresh</button></div>`
+    :'<p style="color:var(--text-hint);font-size:13px;font-family:\'JetBrains Mono\',monospace">no results yet — be the first to complete the assessment.</p>'}`;
+
+  if(selfs.length>0&&window.Chart){
+    if(chartTeam){chartTeam.destroy();chartTeam=null;}
+    chartTeam=new Chart(document.getElementById('overviewRadar'),{
+      type:'radar',
+      data:{labels,datasets},
+      options:{
+        responsive:true,
+        scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:10},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:11,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},
+        plugins:{legend:{position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:11,family:'JetBrains Mono'},boxWidth:16,padding:12}}}
+      }
+    });
+  }
+  document.getElementById('refreshBtn')&&(document.getElementById('refreshBtn').onclick=()=>render());
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+async function render() { renderNav(); await renderMain(); }
+document.getElementById('teamOverviewBtn').onclick=()=>{S.viewingTeam=true;render();};
+
+initDB().then(()=>render());
+</script>
+</body>
+</html>
