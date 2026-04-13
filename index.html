@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 :root{--yellow:#FFC800;--orange:#FF7800;--red:#D70000;--navy:#00005F;--sky:#55C3F0;--navy-dark:#000040;--surface:#00004A;--surface2:#000038;--border:rgba(85,195,240,0.15);--border-bright:rgba(85,195,240,0.35);--text:#E8F4FF;--text-muted:rgba(232,244,255,0.62);--text-hint:rgba(232,244,255,0.32)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Space Grotesk',sans-serif;background:var(--navy-dark);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:17px}
+body{font-family:'Space Grotesk',sans-serif;background:var(--navy-drk);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:17px}
 .atom-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;pointer-events:none;z-index:0;opacity:0.04}
 .app{display:flex;min-height:100vh;position:relative;z-index:1}
 .sidebar{width:248px;min-width:248px;background:var(--surface2);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
@@ -469,6 +469,7 @@ function upsertSubmission(obj){
 }
 
 async function saveMyData(){
+  await loadDB();
   upsertSubmission({name:S.name,mode:S.mode,peerTarget:S.peerTarget,scores:S.scores,wildcards:S.wildcards,teamAnswers:S.teamAnswers,feedback:S.feedback});
   await saveDB();
 }
