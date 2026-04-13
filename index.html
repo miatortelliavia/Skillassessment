@@ -441,7 +441,8 @@ let DB={submissions:[]};
 let chartSelf=null,chartTeam=null;
 
 // ─── JSONBIN ──────────────────────────────────────────────────────────────────
-async function initDB(){ await loadDB(); }
+let dbReady = null;
+function initDB(){ dbReady = loadDB(); }
 
 async function loadDB(){
   try{
@@ -469,7 +470,7 @@ function upsertSubmission(obj){
 }
 
 async function saveMyData(){
-  await loadDB();
+  await dbReady;
   upsertSubmission({name:S.name,mode:S.mode,peerTarget:S.peerTarget,scores:S.scores,wildcards:S.wildcards,teamAnswers:S.teamAnswers,feedback:S.feedback});
   await saveDB();
 }
@@ -566,7 +567,7 @@ async function renderMain(){
 
   // INTRO
   if(b.type==='intro'){
-    await loadDB();
+    await dbReady;
     const selfNames=getSelfs().map(s=>s.name);
     m.innerHTML=`<div class="intro-screen">
       <h2>Team<br><em>Skills Assessment</em></h2>
@@ -644,7 +645,7 @@ async function renderMain(){
 
   // RESULTS
   if(b.type==='results'){
-    await loadDB();
+    await dbReady;
     const labels=CORE_BLOCKS.map(b=>b.navLabel.split(' · ')[1]||b.navLabel);
     const selfData=CORE_BLOCKS.map(b=>{
       const vals=b.skills.map(s=>{const sc=S.scores[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);
@@ -770,7 +771,7 @@ async function renderTeamOverview(m){
 
 async function render(){renderNav();await renderMain();}
 document.getElementById('teamOverviewBtn').onclick=()=>{S.viewingTeam=true;render();};
-initDB().then(()=>render());
+initDB(); render();
 </script>
 </body>
 </html>
