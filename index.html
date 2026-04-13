@@ -567,8 +567,8 @@ async function renderMain(){
 
   // INTRO
   if(b.type==='intro'){
-    await dbReady;
-    const selfNames=getSelfs().map(s=>s.name);
+    // DB loads in background; use what's available now, refresh on peer-mode select
+    const selfNames = DB ? getSelfs().map(s=>s.name) : [];
     m.innerHTML=`<div class="intro-screen">
       <h2>Team<br><em>Skills Assessment</em></h2>
       <p>Rate yourself across 10 competency areas using a scale of 1–5. Level indicators are available inline for each of the 30 skills. You can also anonymously rate a colleague. Results are saved automatically.</p>
@@ -592,9 +592,11 @@ async function renderMain(){
     function upd(){cs.className='mode-card'+(selMode==='self'?' selected-self':'');cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');pw.style.display=selMode==='peer'?'block':'none';}
     upd();
     cs.onclick=()=>{selMode='self';S.mode='self';upd();};
-    cp.onclick=()=>{selMode='peer';S.mode='peer';upd();};
+    cp.onclick=async()=>{selMode='peer';S.mode='peer';await dbReady;render();};
     document.getElementById('nameInput').oninput=e=>{S.name=e.target.value;};
     document.getElementById('peerSelect')&&(document.getElementById('peerSelect').onchange=e=>{S.peerTarget=e.target.value;});
+    // Once DB loads, re-render intro to populate peer dropdown
+    dbReady.then(()=>{if(S.cur===0)render();});
     document.getElementById('startBtn').onclick=()=>{
       const n=document.getElementById('nameInput').value.trim();
       if(!n){document.getElementById('nameInput').focus();return;}
