@@ -3,208 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Atom — Skills Assessment</title>
+<title>Team — Skills Assessment</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-
-:root {
-  --yellow: #FFC800;
-  --orange: #FF7800;
-  --red: #D70000;
-  --navy: #00005F;
-  --sky: #55C3F0;
-  --navy-light: #00007A;
-  --navy-dark: #000040;
-  --surface: #00004A;
-  --surface2: #000038;
-  --border: rgba(85,195,240,0.15);
-  --border-bright: rgba(85,195,240,0.35);
-  --text: #E8F4FF;
-  --text-muted: rgba(232,244,255,0.6);
-  --text-hint: rgba(232,244,255,0.3);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Space Grotesk', sans-serif;
-  background: var(--navy-dark);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-.atom-bg {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 700px;
-  height: 700px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.04;
-}
-
-.app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
-
-.sidebar {
-  width: 240px;
-  min-width: 240px;
-  background: var(--surface2);
-  border-right: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-logo { padding: 1.75rem 1.5rem 1.25rem; border-bottom: 1px solid var(--border); }
-.atom-mark { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.atom-icon { width: 28px; height: 28px; flex-shrink: 0; }
-.sidebar-logo h1 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: 0.12em; text-transform: uppercase; }
-.sidebar-logo .tagline { font-size: 10px; color: var(--text-hint); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; }
-.sidebar-name { font-size: 12px; color: var(--yellow); font-weight: 500; margin-top: 4px; display: block; }
-.mode-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 3px; margin-top: 6px; }
-.mode-self { background: rgba(255,200,0,0.15); color: var(--yellow); border: 1px solid rgba(255,200,0,0.3); }
-.mode-peer { background: rgba(85,195,240,0.15); color: var(--sky); border: 1px solid rgba(85,195,240,0.3); }
-
-.pb-outer { margin: 1rem 1.5rem 0.25rem; height: 2px; background: var(--border); border-radius: 1px; }
-.pb-inner { height: 2px; background: linear-gradient(90deg, var(--yellow), var(--orange)); border-radius: 1px; transition: width 0.5s ease; }
-.pb-label { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); padding: 0 1.5rem 0.75rem; }
-
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 0.45rem 1.5rem; cursor: pointer; font-size: 12.5px; color: var(--text-muted); border: none; background: none; width: 100%; text-align: left; transition: all 0.15s; font-family: 'Space Grotesk', sans-serif; border-left: 2px solid transparent; }
-.nav-item:hover { background: rgba(85,195,240,0.05); color: var(--text); }
-.nav-item.active { background: rgba(255,200,0,0.08); color: var(--yellow); border-left-color: var(--yellow); font-weight: 500; }
-.nav-item.done .nav-dot { background: var(--yellow); box-shadow: 0 0 6px rgba(255,200,0,0.4); }
-.nav-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border-bright); flex-shrink: 0; transition: all 0.2s; }
-.nav-item.active .nav-dot { background: var(--yellow); }
-.nav-divider { height: 1px; background: var(--border); margin: 0.75rem 1.5rem; }
-.nav-special-btn { display: flex; align-items: center; gap: 10px; padding: 0.45rem 1.5rem; cursor: pointer; font-size: 12.5px; color: var(--text-muted); border: none; background: none; width: 100%; text-align: left; transition: all 0.15s; font-family: 'Space Grotesk', sans-serif; border-left: 2px solid transparent; }
-.nav-special-btn:hover { background: rgba(85,195,240,0.05); color: var(--sky); }
-.nav-special-btn.active { background: rgba(85,195,240,0.08); color: var(--sky); border-left-color: var(--sky); font-weight: 500; }
-
-.main { flex: 1; padding: 3rem 4rem; max-width: 860px; }
-
-.block-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-hint); font-family: 'JetBrains Mono', monospace; margin-bottom: 0.5rem; }
-.block-title { font-size: 28px; font-weight: 300; line-height: 1.15; margin-bottom: 0.6rem; }
-.block-title em { font-style: italic; color: var(--yellow); }
-.block-desc { font-size: 13.5px; color: var(--text-muted); max-width: 540px; line-height: 1.7; margin-bottom: 2.5rem; }
-
-.skill-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.25rem; overflow: hidden; transition: border-color 0.2s; }
-.skill-card:hover { border-color: var(--border-bright); }
-.skill-card-header { padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-.skill-id { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--yellow); margin-bottom: 3px; letter-spacing: 0.1em; }
-.skill-name { font-size: 14.5px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-.skill-subdesc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
-.nr-btn { font-size: 11px; color: var(--text-hint); border: 1px solid var(--border); background: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; font-family: 'JetBrains Mono', monospace; }
-.nr-btn:hover { border-color: var(--border-bright); color: var(--text-muted); }
-.nr-btn.active { background: rgba(215,0,0,0.1); color: var(--red); border-color: rgba(215,0,0,0.3); text-decoration: line-through; }
-.skill-body { border-top: 1px solid var(--border); padding: 1.25rem 1.5rem; }
-.skill-body.dimmed { opacity: 0.25; pointer-events: none; }
-
-.rating-row { display: flex; gap: 8px; margin-bottom: 0.6rem; }
-.rb { flex: 1; max-width: 52px; aspect-ratio: 1; border: 1px solid var(--border); background: none; border-radius: 8px; font-size: 15px; font-weight: 500; font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: all 0.15s; color: var(--text-hint); display: flex; align-items: center; justify-content: center; }
-.rb:hover { border-color: var(--yellow); color: var(--yellow); background: rgba(255,200,0,0.05); }
-.rb.s1 { background: rgba(85,195,240,0.15); border-color: rgba(85,195,240,0.4); color: var(--sky); }
-.rb.s2 { background: rgba(85,195,240,0.25); border-color: var(--sky); color: var(--sky); }
-.rb.s3 { background: rgba(255,120,0,0.2); border-color: rgba(255,120,0,0.6); color: var(--orange); }
-.rb.s4 { background: rgba(255,200,0,0.2); border-color: rgba(255,200,0,0.6); color: var(--yellow); }
-.rb.s5 { background: rgba(255,200,0,0.3); border-color: var(--yellow); color: var(--yellow); box-shadow: 0 0 10px rgba(255,200,0,0.2); }
-.lvl-labels { display: flex; gap: 8px; margin-bottom: 1rem; }
-.ll { flex: 1; max-width: 52px; font-size: 9px; color: var(--text-hint); text-align: center; line-height: 1.3; font-family: 'JetBrains Mono', monospace; }
-
-.ind-toggle { font-size: 11px; color: var(--sky); cursor: pointer; background: none; border: none; padding: 0; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 5px; letter-spacing: 0.04em; }
-.ind-toggle:hover { color: var(--text); }
-.ind-panel { display: none; margin-top: 1rem; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
-.ind-panel.open { display: block; }
-.ind-level { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
-.ind-level:last-child { border-bottom: none; }
-.in { font-size: 11px; font-weight: 500; font-family: 'JetBrains Mono', monospace; min-width: 16px; padding-top: 1px; }
-.c1 { color: rgba(85,195,240,0.5); } .c2 { color: var(--sky); } .c3 { color: var(--orange); } .c4 { color: var(--yellow); } .c5 { color: var(--yellow); text-shadow: 0 0 8px rgba(255,200,0,0.5); }
-.ic { flex: 1; }
-.iname { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
-.ilist { list-style: none; display: flex; flex-direction: column; gap: 3px; }
-.ilist li { font-size: 11.5px; color: var(--text-muted); padding-left: 12px; position: relative; line-height: 1.5; }
-.ilist li::before { content: '·'; position: absolute; left: 0; color: var(--text-hint); }
-
-.team-q { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
-.tq-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-.tq-desc { font-size: 12px; color: var(--text-hint); margin-bottom: 0.875rem; line-height: 1.6; }
-.tq-ta { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13.5px; font-family: 'Space Grotesk', sans-serif; color: var(--text); background: var(--surface2); resize: vertical; min-height: 90px; outline: none; transition: border-color 0.15s; line-height: 1.6; }
-.tq-ta:focus { border-color: var(--sky); }
-
-.peer-select-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-.peer-select-wrap label { display: block; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
-.peer-select { width: 100%; max-width: 320px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: 'Space Grotesk', sans-serif; color: var(--text); background: var(--surface2); outline: none; cursor: pointer; appearance: none; transition: border-color 0.15s; }
-.peer-select:focus { border-color: var(--sky); }
-.peer-warning { font-size: 12px; color: var(--orange); margin-top: 8px; font-family: 'JetBrains Mono', monospace; line-height:1.5; }
-
-.intro-screen { max-width: 580px; }
-.intro-screen h2 { font-size: 38px; font-weight: 300; line-height: 1.1; margin-bottom: 1.25rem; }
-.intro-screen h2 em { font-style: italic; color: var(--yellow); }
-.intro-screen p { color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.7; font-size: 14px; }
-.mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.75rem 0; }
-.mode-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s; text-align: left; }
-.mode-card:hover { border-color: var(--border-bright); }
-.mode-card.selected-self { border-color: var(--yellow); background: rgba(255,200,0,0.05); }
-.mode-card.selected-peer { border-color: var(--sky); background: rgba(85,195,240,0.05); }
-.mode-card-icon { font-size: 22px; margin-bottom: 8px; }
-.mode-card-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-.mode-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-
-.ni-wrap { margin-bottom: 1.5rem; }
-.ni-wrap label { display: block; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
-.ni-wrap input { border: 1px solid var(--border); border-radius: 8px; padding: 11px 16px; font-size: 15px; font-family: 'Space Grotesk', sans-serif; color: var(--text); background: var(--surface); outline: none; width: 100%; max-width: 320px; transition: border-color 0.15s; }
-.ni-wrap input:focus { border-color: var(--yellow); }
-
-.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; border-radius: 8px; font-size: 13.5px; font-weight: 500; font-family: 'Space Grotesk', sans-serif; cursor: pointer; transition: all 0.15s; border: none; letter-spacing: 0.02em; }
-.btn-p { background: var(--yellow); color: var(--navy-dark); }
-.btn-p:hover { background: #FFD440; transform: translateY(-1px); }
-.btn-g { background: none; color: var(--text-muted); border: 1px solid var(--border); }
-.btn-g:hover { border-color: var(--border-bright); color: var(--text); }
-.btn-sky { background: rgba(85,195,240,0.15); color: var(--sky); border: 1px solid rgba(85,195,240,0.3); }
-.btn-sky:hover { background: rgba(85,195,240,0.25); }
-.btn-sm { padding: 7px 14px; font-size: 12px; }
-
-.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.75rem; border-top: 1px solid var(--border); }
-.nav-ctr { font-size: 11px; color: var(--text-hint); font-family: 'JetBrains Mono', monospace; }
-
-.radar-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
-.radar-wrap h3 { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
-.results-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
-.legend-line { width: 24px; height: 2px; border-radius: 1px; }
-.results-detail { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
-.result-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.25rem; }
-.rl { flex: 1; font-size: 12.5px; color: var(--text-muted); }
-.rl span { font-family: 'JetBrains Mono', monospace; color: var(--yellow); font-size: 10px; margin-right: 6px; }
-.score-chip { display: flex; align-items: center; gap: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
-.score-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-.save-banner { background: rgba(255,200,0,0.08); border: 1px solid rgba(255,200,0,0.2); border-radius: 8px; padding: 0.875rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.save-banner p { font-size: 12.5px; color: rgba(255,200,0,0.8); line-height: 1.5; }
-
-.who-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
-.person-chip { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px 5px 6px; font-size: 12.5px; color: var(--text-muted); }
-.p-avatar { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,200,0,0.15); color: var(--yellow); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
-.p-count { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); margin-left: 4px; }
-.ta-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 8px; }
-.ta-author { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--yellow); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-.ta-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-.fb-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
-.fb-box h3 { font-size: 13px; font-weight: 500; margin-bottom: 0.75rem; }
-.exp-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.section-wrap { margin-bottom: 2rem; }
-.section-title { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
-.loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--text-hint); font-size: 13px; font-family: 'JetBrains Mono', monospace; }
-.error-msg { background: rgba(215,0,0,0.1); border: 1px solid rgba(215,0,0,0.3); border-radius: 8px; padding: 1rem 1.25rem; font-size: 13px; color: var(--red); font-family: 'JetBrains Mono', monospace; margin-bottom: 1rem; line-height: 1.5; }
+:root{--yellow:#FFC800;--orange:#FF7800;--red:#D70000;--navy:#00005F;--sky:#55C3F0;--navy-dark:#000040;--surface:#00004A;--surface2:#000038;--border:rgba(85,195,240,0.15);--border-bright:rgba(85,195,240,0.35);--text:#E8F4FF;--text-muted:rgba(232,244,255,0.62);--text-hint:rgba(232,244,255,0.32)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:var(--navy-dark);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:17px}
+.atom-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;pointer-events:none;z-index:0;opacity:0.04}
+.app{display:flex;min-height:100vh;position:relative;z-index:1}
+.sidebar{width:248px;min-width:248px;background:var(--surface2);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-logo{padding:1.75rem 1.5rem 1.25rem;border-bottom:1px solid var(--border)}
+.atom-mark{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.atom-icon{width:28px;height:28px;flex-shrink:0}
+.sidebar-logo h1{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.12em;text-transform:uppercase}
+.sidebar-logo .tagline{font-size:11px;color:var(--text-hint);font-family:'JetBrains Mono',monospace;letter-spacing:.08em}
+.sidebar-name{font-size:13px;color:var(--yellow);font-weight:500;margin-top:4px;display:block}
+.mode-indicator{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:3px;margin-top:6px}
+.mode-self{background:rgba(255,200,0,0.15);color:var(--yellow);border:1px solid rgba(255,200,0,0.3)}
+.mode-peer{background:rgba(85,195,240,0.15);color:var(--sky);border:1px solid rgba(85,195,240,0.3)}
+.pb-outer{margin:1rem 1.5rem 0.25rem;height:2px;background:var(--border);border-radius:1px}
+.pb-inner{height:2px;background:linear-gradient(90deg,var(--yellow),var(--orange));border-radius:1px;transition:width .5s ease}
+.pb-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);padding:0 1.5rem .75rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:.42rem 1.5rem;cursor:pointer;font-size:13px;color:var(--text-muted);border:none;background:none;width:100%;text-align:left;transition:all .15s;font-family:'Space Grotesk',sans-serif;border-left:2px solid transparent}
+.nav-item:hover{background:rgba(85,195,240,0.05);color:var(--text)}
+.nav-item.active{background:rgba(255,200,0,0.08);color:var(--yellow);border-left-color:var(--yellow);font-weight:500}
+.nav-item.done .nav-dot{background:var(--yellow);box-shadow:0 0 6px rgba(255,200,0,0.4)}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:var(--border-bright);flex-shrink:0;transition:all .2s}
+.nav-item.active .nav-dot{background:var(--yellow)}
+.nav-divider{height:1px;background:var(--border);margin:.75rem 1.5rem}
+.nav-special-btn{display:flex;align-items:center;gap:10px;padding:.42rem 1.5rem;cursor:pointer;font-size:13px;color:var(--text-muted);border:none;background:none;width:100%;text-align:left;transition:all .15s;font-family:'Space Grotesk',sans-serif;border-left:2px solid transparent}
+.nav-special-btn:hover{background:rgba(85,195,240,0.05);color:var(--sky)}
+.nav-special-btn.active{background:rgba(85,195,240,0.08);color:var(--sky);border-left-color:var(--sky);font-weight:500}
+.main{flex:1;padding:3rem 4rem;max-width:880px}
+.block-tag{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--text-hint);font-family:'JetBrains Mono',monospace;margin-bottom:.5rem}
+.block-title{font-size:30px;font-weight:300;line-height:1.15;margin-bottom:.6rem}
+.block-title em{font-style:italic;color:var(--yellow)}
+.block-desc{font-size:15px;color:var(--text-muted);max-width:560px;line-height:1.7;margin-bottom:2.5rem}
+.skill-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.25rem;overflow:hidden;transition:border-color .2s}
+.skill-card:hover{border-color:var(--border-bright)}
+.skill-card-header{padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.skill-id{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--yellow);margin-bottom:3px;letter-spacing:.1em}
+.skill-name{font-size:16px;font-weight:500;color:var(--text);margin-bottom:3px}
+.skill-subdesc{font-size:13.5px;color:var(--text-muted);line-height:1.5}
+.nr-btn{font-size:12px;color:var(--text-hint);border:1px solid var(--border);background:none;border-radius:4px;padding:4px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;font-family:'JetBrains Mono',monospace}
+.nr-btn:hover{border-color:var(--border-bright);color:var(--text-muted)}
+.nr-btn.active{background:rgba(215,0,0,0.1);color:var(--red);border-color:rgba(215,0,0,0.3);text-decoration:line-through}
+.skill-body{border-top:1px solid var(--border);padding:1.25rem 1.5rem}
+.skill-body.dimmed{opacity:.25;pointer-events:none}
+.rating-row{display:flex;gap:8px;margin-bottom:.6rem}
+.rb{flex:1;max-width:54px;aspect-ratio:1;border:1px solid var(--border);background:none;border-radius:8px;font-size:17px;font-weight:500;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .15s;color:var(--text-hint);display:flex;align-items:center;justify-content:center}
+.rb:hover{border-color:var(--yellow);color:var(--yellow);background:rgba(255,200,0,0.05)}
+.rb.s1{background:rgba(85,195,240,0.15);border-color:rgba(85,195,240,0.4);color:var(--sky)}
+.rb.s2{background:rgba(85,195,240,0.25);border-color:var(--sky);color:var(--sky)}
+.rb.s3{background:rgba(255,120,0,0.2);border-color:rgba(255,120,0,0.6);color:var(--orange)}
+.rb.s4{background:rgba(255,200,0,0.2);border-color:rgba(255,200,0,0.6);color:var(--yellow)}
+.rb.s5{background:rgba(255,200,0,0.3);border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 10px rgba(255,200,0,0.2)}
+.lvl-labels{display:flex;gap:8px;margin-bottom:1rem}
+.ll{flex:1;max-width:54px;font-size:10px;color:var(--text-hint);text-align:center;line-height:1.3;font-family:'JetBrains Mono',monospace}
+.ind-toggle{font-size:12px;color:var(--sky);cursor:pointer;background:none;border:none;padding:0;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:5px;letter-spacing:.04em}
+.ind-toggle:hover{color:var(--text)}
+.ind-panel{display:none;margin-top:1rem;background:var(--surface2);border-radius:8px;border:1px solid var(--border);overflow:hidden}
+.ind-panel.open{display:block}
+.ind-level{padding:.75rem 1rem;border-bottom:1px solid var(--border);display:flex;gap:12px}
+.ind-level:last-child{border-bottom:none}
+.in{font-size:12px;font-weight:500;font-family:'JetBrains Mono',monospace;min-width:16px;padding-top:1px}
+.c1{color:rgba(85,195,240,0.5)}.c2{color:var(--sky)}.c3{color:var(--orange)}.c4{color:var(--yellow)}.c5{color:var(--yellow);text-shadow:0 0 8px rgba(255,200,0,0.5)}
+.ic{flex:1}
+.iname{font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px}
+.ilist{list-style:none;display:flex;flex-direction:column;gap:3px}
+.ilist li{font-size:12.5px;color:var(--text-muted);padding-left:12px;position:relative;line-height:1.5}
+.ilist li::before{content:'·';position:absolute;left:0;color:var(--text-hint)}
+.team-q{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+.tq-title{font-size:15px;font-weight:500;margin-bottom:6px}
+.tq-desc{font-size:13px;color:var(--text-hint);margin-bottom:.875rem;line-height:1.6}
+.tq-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:15px;font-family:'Space Grotesk',sans-serif;color:var(--text);background:var(--surface2);resize:vertical;min-height:90px;outline:none;transition:border-color .15s;line-height:1.6}
+.tq-ta:focus{border-color:var(--sky)}
+.peer-select-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.peer-select-wrap label{display:block;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.peer-select{width:100%;max-width:320px;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:15px;font-family:'Space Grotesk',sans-serif;color:var(--text);background:var(--surface2);outline:none;cursor:pointer;appearance:none;transition:border-color .15s}
+.peer-select:focus{border-color:var(--sky)}
+.peer-warning{font-size:13px;color:var(--orange);margin-top:8px;font-family:'JetBrains Mono',monospace;line-height:1.5}
+.intro-screen{max-width:580px}
+.intro-screen h2{font-size:40px;font-weight:300;line-height:1.1;margin-bottom:1.25rem}
+.intro-screen h2 em{font-style:italic;color:var(--yellow)}
+.intro-screen p{color:var(--text-muted);margin-bottom:.75rem;line-height:1.7;font-size:15px}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:1.75rem 0}
+.mode-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:all .2s;text-align:left}
+.mode-card:hover{border-color:var(--border-bright)}
+.mode-card.selected-self{border-color:var(--yellow);background:rgba(255,200,0,0.05)}
+.mode-card.selected-peer{border-color:var(--sky);background:rgba(85,195,240,0.05)}
+.mode-card-icon{font-size:22px;margin-bottom:8px}
+.mode-card-title{font-size:15px;font-weight:500;margin-bottom:4px}
+.mode-card-desc{font-size:13px;color:var(--text-muted);line-height:1.5}
+.ni-wrap{margin-bottom:1.5rem}
+.ni-wrap label{display:block;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.ni-wrap input{border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:16px;font-family:'Space Grotesk',sans-serif;color:var(--text);background:var(--surface);outline:none;width:100%;max-width:320px;transition:border-color .15s}
+.ni-wrap input:focus{border-color:var(--yellow)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:8px;font-size:15px;font-weight:500;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .15s;border:none;letter-spacing:.02em}
+.btn-p{background:var(--yellow);color:var(--navy-dark)}
+.btn-p:hover{background:#FFD440;transform:translateY(-1px)}
+.btn-g{background:none;color:var(--text-muted);border:1px solid var(--border)}
+.btn-g:hover{border-color:var(--border-bright);color:var(--text)}
+.btn-sky{background:rgba(85,195,240,0.15);color:var(--sky);border:1px solid rgba(85,195,240,0.3)}
+.btn-sky:hover{background:rgba(85,195,240,0.25)}
+.btn-sm{padding:8px 16px;font-size:13px}
+.nav-footer{display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;padding-top:1.75rem;border-top:1px solid var(--border)}
+.nav-ctr{font-size:12px;color:var(--text-hint);font-family:'JetBrains Mono',monospace}
+.radar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.radar-wrap h3{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem}
+.results-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.legend-line{width:24px;height:2px;border-radius:1px}
+.results-detail{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
+.result-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.875rem 1.25rem}
+.rl{flex:1;font-size:13.5px;color:var(--text-muted)}
+.rl span{font-family:'JetBrains Mono',monospace;color:var(--yellow);font-size:11px;margin-right:6px}
+.score-chip{display:flex;align-items:center;gap:6px;font-size:13px;font-family:'JetBrains Mono',monospace}
+.score-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.save-banner{background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.2);border-radius:8px;padding:.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.save-banner p{font-size:13.5px;color:rgba(255,200,0,0.8);line-height:1.5}
+.next-action-banner{background:rgba(85,195,240,0.08);border:1px solid rgba(85,195,240,0.2);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.next-action-banner h3{font-size:14px;font-weight:500;color:var(--sky);margin-bottom:.5rem}
+.next-action-banner p{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:1rem}
+.next-action-banner .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.who-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:2rem}
+.person-chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px 5px 6px;font-size:13px;color:var(--text-muted)}
+.p-avatar{width:26px;height:26px;border-radius:50%;background:rgba(255,200,0,0.15);color:var(--yellow);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace}
+.p-count{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);margin-left:4px}
+.ta-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:8px}
+.ta-author{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--yellow);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.ta-text{font-size:14px;color:var(--text-muted);line-height:1.6}
+.fb-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.fb-box h3{font-size:14px;font-weight:500;margin-bottom:.75rem}
+.exp-row{display:flex;gap:10px;flex-wrap:wrap}
+.section-wrap{margin-bottom:2rem}
+.section-title{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text-hint);font-size:14px;font-family:'JetBrains Mono',monospace}
+.wildcard-card{background:var(--surface);border:1px dashed rgba(85,195,240,0.25);border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+.wc-grid{display:grid;grid-template-columns:1fr 160px 60px;gap:12px;align-items:end}
+.form-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px}
+.form-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:15px;font-family:'Space Grotesk',sans-serif;color:var(--text);background:var(--surface2);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--sky)}
+.wc-score{border:1px solid var(--border);border-radius:8px;padding:9px;font-size:18px;font-weight:500;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--surface2);width:60px;text-align:center;outline:none}
 </style>
 </head>
 <body>
-
 <svg class="atom-bg" viewBox="0 0 700 700">
   <circle cx="350" cy="350" r="30" fill="#55C3F0" opacity="0.6"/>
   <ellipse cx="350" cy="350" rx="280" ry="100" stroke="#55C3F0" stroke-width="1" fill="none"/>
@@ -213,7 +156,6 @@ body {
   <circle cx="350" cy="350" r="160" stroke="#55C3F0" stroke-width="0.8" fill="none"/>
   <circle cx="350" cy="350" r="80" stroke="#55C3F0" stroke-width="0.8" fill="none"/>
 </svg>
-
 <div class="app">
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
@@ -224,7 +166,7 @@ body {
         <ellipse cx="14" cy="14" rx="12" ry="5" stroke="#55C3F0" stroke-width="1" fill="none" transform="rotate(60 14 14)"/>
         <ellipse cx="14" cy="14" rx="12" ry="5" stroke="#55C3F0" stroke-width="1" fill="none" transform="rotate(120 14 14)"/>
       </svg>
-      <h1>Atom</h1>
+      <h1>Team</h1>
     </div>
     <div class="tagline">skills assessment</div>
     <span class="sidebar-name" id="sidebarName"></span>
@@ -238,176 +180,324 @@ body {
 </nav>
 <main class="main" id="main"><div class="loading">initialising…</div></main>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-const JSONBIN_KEY = '$2a$10$59CH8IHDXkOID5K4zGasEOHAeS/pIvTRSkFqlfm5Xf8KhHm5Ebh02';
-const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
-const BIN_NAME = 'atom-assessment-data';
+const JSONBIN_KEY='$2a$10$59CH8IHDXkOID5K4zGasEOHAeS/pIvTRSkFqlfm5Xf8KhHm5Ebh02';
+const JSONBIN_BASE='https://api.jsonbin.io/v3';
+const BIN_ID='69dcce00856a6821892b25ed';
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const BLOCKS = [
-  { id:'intro', navLabel:'Start', type:'intro' },
-  {
-    id:'A', navLabel:'Self-mastery',
-    title:'Self-mastery', desc:'Knowing yourself — your emotions, triggers, values, and the impact you have on others.',
-    skills:[{
-      id:'A1', name:'Emotional intelligence & self-awareness',
-      desc:'Knowing your emotions, triggers, values, and the impact you have on others.',
-      indicators:[
-        {level:1,name:'Beginner',items:['You can name basic emotions in yourself and recognise them in others.','You understand that people have different values and beliefs.']},
-        {level:2,name:'Advanced beginner',items:['You recognise nuanced emotional states and can name them.','You are aware of your core values and how they influence your behaviour.']},
-        {level:3,name:'Practitioner',items:['You can name your emotional state in the moment, even under pressure.','You recognise your blind spots and actively work on them.']},
-        {level:4,name:'Guide',items:['You know your triggers in advance and have strategies to work with them.','You extract learning from your experiences systematically.']},
-        {level:5,name:'Catalyst',items:['You know yourself deeply at any given moment.','Your self-awareness visibly influences those around you.']}
-      ]
-    }]
-  },
-  {
-    id:'D', navLabel:'Facilitation',
-    title:'Facilitation', desc:'Designing and running sessions that help groups collaborate, align, and achieve outcomes together.',
-    skills:[{
-      id:'D2', name:'Facilitation delivery',
-      desc:'Moderating groups live — steering energy, holding neutrality, managing conflict in the room.',
-      indicators:[
-        {level:1,name:'Beginner',items:['You follow a prepared agenda and keep the group on time.','You understand the difference between facilitating and presenting.']},
-        {level:2,name:'Advanced beginner',items:['You keep groups focused and redirect off-topic discussions.','You use techniques to encourage equal participation.']},
-        {level:3,name:'Practitioner',items:['You adapt your approach in real time when dynamics shift.','You surface and work through conflict constructively.']},
-        {level:4,name:'Guide',items:['You intuitively read the room and adjust without losing the group.','You facilitate high-stakes sessions confidently.']},
-        {level:5,name:'Catalyst',items:['You deliver facilitation in complex, resistant environments.','You are sought out as a facilitation authority.']}
-      ]
-    }]
-  },
-  {
-    id:'I', navLabel:'Project mgmt',
-    title:'Project management & administration', desc:'Keeping the operation running — planning, documentation, and vendor coordination.',
-    skills:[{
-      id:'I2', name:'Documentation & knowledge management',
-      desc:'Creating, maintaining, and structuring knowledge so it stays accessible and genuinely useful.',
-      indicators:[
-        {level:1,name:'Beginner',items:['You understand why documentation matters and can follow an existing structure.','You know where to find and store information in the team\'s system.']},
-        {level:2,name:'Advanced beginner',items:['You create and update documentation independently and keep it current.','You write for your audience, not just for yourself.']},
-        {level:3,name:'Practitioner',items:['You design structures that others find intuitive.','You proactively identify and fill knowledge gaps.']},
-        {level:4,name:'Guide',items:['You define knowledge management standards and information architecture.','You ensure knowledge is actively used, not just stored.']},
-        {level:5,name:'Catalyst',items:['You build systems that outlive your involvement.','You introduce new approaches and inspire others to rethink knowledge work.']}
-      ]
-    }]
-  },
-  { id:'team-q', navLabel:'Team level', type:'team-q', title:'Team-level reflection', desc:'One question about us as a team — what you observe collectively.' },
-  { id:'results', navLabel:'My results', type:'results', title:'Results' }
+const BLOCKS=[
+  {id:'intro',navLabel:'Start',type:'intro'},
+  {id:'A',navLabel:'A · Self-mastery',title:'Self-mastery',desc:'The foundation of great coaching — knowing yourself, regulating your emotions, and investing in your own growth.',
+   skills:[
+    {id:'A1',name:'Emotional intelligence & self-awareness',desc:'Knowing your emotions, triggers, values, and the impact you have on others.',indicators:[
+      {level:1,name:'Beginner',items:['You can name basic emotions in yourself and recognise them in others.','You understand that people have different values and belief systems.','You are open to different experiences and new perspectives in principle.']},
+      {level:2,name:'Advanced beginner',items:['You recognise a wider range of emotional states and can name them with nuance.','You are aware of some of your core values and how they influence your behaviour.','You can identify some of your personal strengths and limitations honestly.']},
+      {level:3,name:'Practitioner',items:['You can name your emotional state in the moment, even under pressure.','You recognise that you have blind spots and actively work to identify them.','You understand how your values show up in your work — and where they create friction.']},
+      {level:4,name:'Guide',items:['You know your triggers in advance and have strategies to work with them.','You understand your value system deeply and make conscious choices about it.','You regularly extract learning from your experiences to grow your self-understanding.']},
+      {level:5,name:'Catalyst',items:['You know yourself deeply — your emotional state, values, and impact — at any given moment.','You intentionally choose whether and how to express your values in any situation.','Your self-awareness visibly influences those around you; people grow by working with you.']}
+    ]},
+    {id:'A2',name:'Self-regulation & energy management',desc:'Consciously managing your emotional state, energy, and boundaries — at work and beyond.',indicators:[
+      {level:1,name:'Beginner',items:['You understand that self-regulation is valuable in some circumstances.','You recognise when you are out of balance but may not know how to restore it.','You can distinguish between dysfunctional and healthy coping behaviours.']},
+      {level:2,name:'Advanced beginner',items:['You demonstrate awareness when self-regulation is not happening.','You can control your emotions and behaviour to achieve a specific impact.','You have some healthy boundaries and close personal support structures.']},
+      {level:3,name:'Practitioner',items:['You choose your response in most situations rather than reacting automatically.','You recognise when you are out of balance quickly and know how to recover.','You understand when you have transgressed a boundary and can repair the relationship.']},
+      {level:4,name:'Guide',items:['You regulate your emotions and energetic field consciously and consistently.','You hold professional and personal boundaries in congruence with your ethical code.','You understand that constant self-regulation has a cost and have mitigation strategies.']},
+      {level:5,name:'Catalyst',items:['You shift your emotional state at will in service of yourself and others.','You choose how to respond in any given situation with full intentionality.','You encourage others to consider balance and have developed techniques that help them.']}
+    ]},
+    {id:'A3',name:'Personal transformation & learning mindset',desc:'Investing in your own growth, embracing feedback, and modelling the change you want to see.',indicators:[
+      {level:1,name:'Beginner',items:['You recognise that you may benefit from learning new skills and growing competencies.','You have a basic understanding of where you have growth opportunities.']},
+      {level:2,name:'Advanced beginner',items:['You learn actively from others who have skills you want to develop.','You invest in personal growth through education, mentorship, or introspection.']},
+      {level:3,name:'Practitioner',items:['You treat personal transformation as an ongoing activity without end.','You have engaged a coach or mentor for your own development.','You understand that transformation impacts not just what you know but who you are.']},
+      {level:4,name:'Guide',items:['You weave personal growth and reflection into your daily life.','You assist others on their transformation journeys through mentoring and coaching.']},
+      {level:5,name:'Catalyst',items:['You analyse your transformational journey and share it openly with others.','You develop practices that help others on their own personal growth journeys.','Your example has a measurable impact on the people around you.']}
+    ]}
+   ]},
+  {id:'B',navLabel:'B · Agile & Lean',title:'Agile & Lean practitioner',desc:'Deep understanding of Agile and Lean values, principles, frameworks, and practices — and the ability to apply them in real contexts.',
+   skills:[
+    {id:'B1',name:'Agile & Lean mindset',desc:'Understanding and embodying the values and principles behind Agile and Lean thinking.',indicators:[
+      {level:1,name:'Beginner',items:['You can describe the Agile Manifesto and its principles.','You are aware of Lean Thinking and its origins.','You can explain the core values of at least one Agile framework.']},
+      {level:2,name:'Advanced beginner',items:['You relate your own behaviours to Agile principles in practice.','You recognise when decisions help or hinder adoption of Agile principles.','You can associate Lean principles with Agile approaches.']},
+      {level:3,name:'Practitioner',items:['You can give concrete examples of applying an empirical mindset in your work.','You create clear explanations of how Agile and Lean principles help teams deliver sustainable value.','You actively identify how you can improve your own fulfilment of the Agile and Lean mindset.']},
+      {level:4,name:'Guide',items:['You navigate situations where there is no obvious resolution using an Agile and Lean mindset.','You appraise practices across teams and analyse whether they support continuous sustainable value delivery.']},
+      {level:5,name:'Catalyst',items:['You assess new principles and how they fit within the Agile and Lean umbrella.','You create and contribute new thinking to the community.','You are sought out to speak at events and seen as a leader in the Agile and Lean community.']}
+    ]},
+    {id:'B2',name:'Frameworks & methods',desc:'Knowing when and how to apply Agile and Lean frameworks — Scrum, Kanban, SAFe, LeSS, and beyond.',indicators:[
+      {level:1,name:'Beginner',items:['You can describe at least one Agile framework and how it relates to the Manifesto.','You understand the historical development of Agile.']},
+      {level:2,name:'Advanced beginner',items:['You can apply an Agile or Lean framework through a complete cycle.','You can describe at least three Lean/Agile frameworks and explain their value.']},
+      {level:3,name:'Practitioner',items:['You have guided a team to an Agile or Lean framework successfully.','You can apply at least two frameworks in multiple different situations.','You can differentiate scaling frameworks and advise on their fit.']},
+      {level:4,name:'Guide',items:['You help teams evaluate and choose the process most suitable for them.','You can apply many frameworks and adapt fluidly to different situations.']},
+      {level:5,name:'Catalyst',items:['You create and share new approaches to continuous value delivery.','You assess emerging frameworks and communicate their potential to organisations.']}
+    ]},
+    {id:'B3',name:'Practices & tools',desc:'Applying Agile and Lean practices effectively — from user stories and retrospectives to metrics and value stream mapping.',indicators:[
+      {level:1,name:'Beginner',items:['You can explain at least three Agile practices commonly used by teams.','You are aware of one or two Lean practices helpful for individual teams.']},
+      {level:2,name:'Advanced beginner',items:['You can explain how at least three practices align (or not) with the Agile Manifesto.','You have demonstrated how an Agile practice could improve a team\'s current way of working.']},
+      {level:3,name:'Practitioner',items:['You can analyse new Agile or Lean practices and assess how they apply in context.','You have integrated at least three Agile and Lean practices in real teams.','You have applied practices beyond single-team level.']},
+      {level:4,name:'Guide',items:['You evaluate and evolve practices to meet organisational needs while staying true to Agile values.','You facilitate experimentation and learning with practices across multiple systems.']},
+      {level:5,name:'Catalyst',items:['You create new practices and share them with the broader community.','You assess emerging practices and communicate their value clearly.']}
+    ]}
+   ]},
+  {id:'C',navLabel:'C · Coaching',title:'Coaching',desc:'Partnering with individuals, teams, or organisations to help them reach their goals by unlocking their own potential.',
+   skills:[
+    {id:'C1',name:'Coaching mindset & ethics',desc:'Holding the client as whole and capable, maintaining a coaching stance, and acting ethically at all times.',indicators:[
+      {level:1,name:'Beginner',items:['You understand the difference between coaching, mentoring, teaching, and advising.','You are aware of ethical guidelines relevant to coaching.','You can describe what it means to hold a client as whole and capable.']},
+      {level:2,name:'Advanced beginner',items:['You can enter a coaching stance and sustain it during a short conversation.','You recognise when you are slipping out of a coaching stance.','You understand when a coaching approach is and is not appropriate.']},
+      {level:3,name:'Practitioner',items:['You consistently hold a coaching stance and can switch fluidly between stances.','You act ethically in your coaching work and can articulate why in specific situations.','You serve the client\'s agenda rather than your own in your coaching practice.']},
+      {level:4,name:'Guide',items:['You intuitively choose the right stance — coaching, mentoring, advising — for the moment.','You actively uphold and model coaching ethics and help others develop their ethical practice.']},
+      {level:5,name:'Catalyst',items:['Your coaching mindset is deeply integrated into how you show up in every context.','You contribute to the development of coaching ethics and practice in the wider community.']}
+    ]},
+    {id:'C2',name:'Coaching skills',desc:'Active listening, powerful questioning, presence, and giving and receiving feedback.',indicators:[
+      {level:1,name:'Beginner',items:['You understand what active listening means and why it matters.','You can formulate open questions in a coaching conversation.']},
+      {level:2,name:'Advanced beginner',items:['You practice active listening and reflect back what you hear accurately.','You ask questions that open up rather than close down thinking.','You can give feedback constructively and receive it openly.']},
+      {level:3,name:'Practitioner',items:['You use silence, reflection, and metaphor naturally in coaching conversations.','Your questions consistently deepen the client\'s thinking.','You maintain full presence during a coaching session without distraction.']},
+      {level:4,name:'Guide',items:['You have a wide repertoire of coaching skills and deploy them intuitively.','Your presence and quality of listening alone create space for transformation.']},
+      {level:5,name:'Catalyst',items:['You develop and teach coaching skills to others and contribute new approaches to the field.','You are sought out as a coaching skills developer and supervisor.']}
+    ]},
+    {id:'C3',name:'Coaching teams & systems',desc:'Working with teams and organisations as living systems — recognising dynamics, patterns, and interdependencies.',indicators:[
+      {level:1,name:'Beginner',items:['You understand that teams are more than the sum of their individuals.','You are aware of common team dynamics and how they affect performance.']},
+      {level:2,name:'Advanced beginner',items:['You can identify team dynamics at play and name them.','You apply at least one multi-stage model of team development.']},
+      {level:3,name:'Practitioner',items:['You coach teams through complex dynamics and help them surface and work through conflict.','You understand systemic patterns and can name them without being swept up in them.','You have coached multiple different teams with distinct approaches.']},
+      {level:4,name:'Guide',items:['You work across multiple team systems simultaneously and see the interconnections.','You coach organisations, not just teams — helping leadership systems evolve.']},
+      {level:5,name:'Catalyst',items:['You are a thought leader in team and systemic coaching.','You develop new approaches to coaching teams and organisations.']}
+    ]}
+   ]},
+  {id:'D',navLabel:'D · Facilitation',title:'Facilitation',desc:'Increasing the effectiveness of groups to align, collaborate, and identify valuable outcomes together.',
+   skills:[
+    {id:'D1',name:'Facilitation design',desc:'Designing workshops and meetings with clear purpose, appropriate format, and a well-crafted agenda.',indicators:[
+      {level:1,name:'Beginner',items:['You understand the purpose of structuring a session and can follow an existing design.','You can prepare a simple agenda for a meeting or workshop.']},
+      {level:2,name:'Advanced beginner',items:['You design sessions with clear objectives and an appropriate flow.','You select methods and activities suited to the group\'s goal.']},
+      {level:3,name:'Practitioner',items:['You design complex multi-part workshops from scratch for diverse groups.','You tailor your design to the specific group, culture, and context.','You iterate on your designs based on what you learn from each session.']},
+      {level:4,name:'Guide',items:['You design transformational experiences for high-stakes or large-scale events.','You coach others in the design of sessions and review their designs with insight.']},
+      {level:5,name:'Catalyst',items:['You create new facilitation formats and methods and share them with the community.','You are sought out to design programmes and experiences others cannot.']}
+    ]},
+    {id:'D2',name:'Facilitation delivery',desc:'Moderating groups live — steering energy, holding neutrality, managing conflict in the room.',indicators:[
+      {level:1,name:'Beginner',items:['You follow a prepared agenda and keep the group on time.','You understand the difference between facilitating and presenting.','You recognise when the energy in a room drops but are unsure how to respond.']},
+      {level:2,name:'Advanced beginner',items:['You actively keep the group focused and redirect off-topic discussions.','You use at least two techniques to encourage equal participation.','You can hold a neutral stance even when you personally disagree.']},
+      {level:3,name:'Practitioner',items:['You adapt your facilitation approach in real time when group dynamics shift.','You surface and work through conflict constructively rather than avoiding it.','You quickly build psychological safety with groups you have never met before.']},
+      {level:4,name:'Guide',items:['You intuitively read the room and adjust pace, format, or method without losing the group.','You can facilitate large or high-stakes sessions with confidence.','You coach other facilitators to help them grow.']},
+      {level:5,name:'Catalyst',items:['You design and deliver facilitation in complex or resistant environments where others would struggle.','You develop new facilitation approaches and are sought out as an authority.']}
+    ]},
+    {id:'D3',name:'Digital & hybrid facilitation',desc:'Facilitating effectively in remote and hybrid settings using digital tools.',indicators:[
+      {level:1,name:'Beginner',items:['You are aware of common online facilitation tools (e.g. Miro, MURAL, Teams).','You can participate effectively in a digitally facilitated session.']},
+      {level:2,name:'Advanced beginner',items:['You can facilitate a straightforward online session using digital tools.','You know at least two techniques to increase engagement in virtual settings.']},
+      {level:3,name:'Practitioner',items:['You design and facilitate complex workshops in digital and hybrid formats.','You adapt your facilitation style effectively for the challenges of remote settings.','You help groups build connection and psychological safety online.']},
+      {level:4,name:'Guide',items:['You design sophisticated hybrid experiences that work equally well for remote and in-person participants.','You coach others in digital facilitation and help them develop their toolkit.']},
+      {level:5,name:'Catalyst',items:['You experiment with and create new approaches to digital facilitation.','You are a recognised practitioner in digital and hybrid facilitation.']}
+    ]}
+   ]},
+  {id:'E',navLabel:'E · Training',title:'Training & guided learning',desc:'Effectively growing individuals\' and groups\' skills — choosing the right learning method and inspiring future learning.',
+   skills:[
+    {id:'E1',name:'Didactic design',desc:'Defining learning objectives and designing training formats — in-person, video, blended, or programme-level.',indicators:[
+      {level:1,name:'Beginner',items:['You understand how learning objectives structure a training.','You can follow and deliver an existing training design.']},
+      {level:2,name:'Advanced beginner',items:['You develop learner-driven content that is interactive and engaging.','You design a workshop based on clear learning objectives.','You assess the impact you are having on learners and adjust.']},
+      {level:3,name:'Practitioner',items:['You design complete training programmes across multiple formats (in-person, digital, blended).','You create psychologically safe environments that enable learning and experimentation.','You design activities that help learners distil and retain what they have learned.']},
+      {level:4,name:'Guide',items:['You design sophisticated multi-module learning programmes for diverse audiences.','You coach other trainers in their design and continuously improve quality.']},
+      {level:5,name:'Catalyst',items:['You design and promote new methods and techniques for guided learning.','You are recognised as a leading authority in learning design.']}
+    ]},
+    {id:'E2',name:'Training delivery',desc:'Delivering training effectively, building engagement, and enabling real behaviour change.',indicators:[
+      {level:1,name:'Beginner',items:['You can deliver a prepared training with support.','You understand the importance of feedback in the learning process.']},
+      {level:2,name:'Advanced beginner',items:['You deliver training confidently and adapt to the room.','You create a supportive environment for your learners.','You validate learners\' understanding during the session.']},
+      {level:3,name:'Practitioner',items:['You believe unconditionally in your learners\' potential and it shows.','You use at least three methods to give and receive feedback to drive continuous learning.','You create learning relationships based on mutual trust, respect, and commitment.']},
+      {level:4,name:'Guide',items:['You instinctively assess what learners need to move forward and meet them there.','You support multiple learning groups simultaneously and maintain quality across all of them.']},
+      {level:5,name:'Catalyst',items:['You are sought out by organisations to shape their approach to active learning.','You regularly contribute to the learning community through speaking, writing, or new methods.']}
+    ]},
+    {id:'E3',name:'Mentoring',desc:'Sharing your experience and expertise to guide others — balancing direction with space for the mentee to grow.',indicators:[
+      {level:1,name:'Beginner',items:['You understand the difference between mentoring and coaching.','You recognise the value of sharing your own experience with others.']},
+      {level:2,name:'Advanced beginner',items:['You can share your knowledge in a way that is useful to a mentee.','You understand when to give advice and when to hold back.']},
+      {level:3,name:'Practitioner',items:['You balance between coaching and advising based on what the mentee needs.','You help the mentee identify the next thing to learn and pursue it.','You know the limits of your own expertise and point to other experts when needed.']},
+      {level:4,name:'Guide',items:['You mentor multiple people simultaneously with tailored approaches for each.','You create mentoring relationships built on mutual accountability and growth.']},
+      {level:5,name:'Catalyst',items:['You build and sustain mentoring communities.','You develop new approaches to mentoring and share them with others.']}
+    ]}
+   ]},
+  {id:'F',navLabel:'F · Advising',title:'Advising',desc:'Bringing your experience and insights to guide clients towards sustainable success — as a trusted advisor.',
+   skills:[
+    {id:'F1',name:'Trusted advisor',desc:'Building deep trust, giving honest recommendations, and having the courage to say what must be said.',indicators:[
+      {level:1,name:'Beginner',items:['You can describe the key skills of a trusted advisor.','You understand the value of emotional and social intelligence in advisory relationships.','You recognise the importance of listening actively before advising.']},
+      {level:2,name:'Advanced beginner',items:['You practice asking open-ended questions to understand client goals and constraints.','You co-create clear goals and agreements with your client.','You actively seek feedback and respond with actionable steps.']},
+      {level:3,name:'Practitioner',items:['You align on goals and maintain focus on them throughout the relationship.','You communicate clearly and with kindness, even when delivering difficult messages.','You assess and communicate assumptions behind your recommendations.']},
+      {level:4,name:'Guide',items:['You share relevant stories, patterns, and examples from successful transformations.','You continuously improve the effectiveness of your recommendations and feedback.']},
+      {level:5,name:'Catalyst',items:['You design customised advising strategies based on specific client needs.','You contribute to the evolution of advisory practice in the community.']}
+    ]},
+    {id:'F2',name:'Stakeholder management',desc:'Engaging stakeholders effectively, managing expectations, and navigating resistance.',indicators:[
+      {level:1,name:'Beginner',items:['You can identify key stakeholders in a project or transformation.','You understand that stakeholders have different needs and concerns.']},
+      {level:2,name:'Advanced beginner',items:['You explain Agile to business stakeholders in accessible language.','You build initial coaching relationships with business stakeholders.']},
+      {level:3,name:'Practitioner',items:['You build and sustain coaching relationships with multiple stakeholders simultaneously.','You navigate competing stakeholder interests constructively.','You help stakeholders make decisions aligned with their strategy.']},
+      {level:4,name:'Guide',items:['You manage stakeholder relationships across large and complex organisational landscapes.','You turn resistant stakeholders into advocates over time.']},
+      {level:5,name:'Catalyst',items:['You design stakeholder engagement approaches for major transformation programmes.','You inspire organisations to rethink how they engage their stakeholders.']}
+    ]},
+    {id:'F3',name:'Knowledge transfer & sustainability',desc:'Building knowledge and capability that outlasts your involvement.',indicators:[
+      {level:1,name:'Beginner',items:['You understand the difference between dependency and capability building.','You recognise when you are being helpful versus creating reliance.']},
+      {level:2,name:'Advanced beginner',items:['You actively look for opportunities to transfer knowledge rather than just deliver it.','You involve clients in solving their own problems rather than solving for them.']},
+      {level:3,name:'Practitioner',items:['You design your advisory work so that the client is more capable after you leave than before.','You explicitly build internal champions and coaches during your engagement.']},
+      {level:4,name:'Guide',items:['You systematically grow agile coaching capability in client organisations.','Your clients continue to grow after your engagement ends.']},
+      {level:5,name:'Catalyst',items:['Organisations you have worked with are recognised for their internal agile capability.','You have helped create self-sustaining learning organisations.']}
+    ]}
+   ]},
+  {id:'G',navLabel:'G · Leadership',title:'Leadership',desc:'Leading by example — inspiring others, catalysing growth, and navigating complex organisational environments.',
+   skills:[
+    {id:'G1',name:'Visionary leadership',desc:'Co-creating a compelling vision and inspiring others to move toward it.',indicators:[
+      {level:1,name:'Beginner',items:['You understand the importance of a clear vision and shared purpose.','You recognise the role of storytelling in communicating a vision.']},
+      {level:2,name:'Advanced beginner',items:['You can articulate a compelling direction and explain why it matters.','You support others in the face of challenges and uncertainty.','You use data and empirical evidence to shape thinking.']},
+      {level:3,name:'Practitioner',items:['You co-create purpose and vision with others — it is not imposed.','You use storytelling effectively to connect people with a shared outcome.','You can adapt your communication of vision to different audiences.']},
+      {level:4,name:'Guide',items:['You help leadership teams develop and live their vision.','Your presence as a visionary leader influences organisational direction.']},
+      {level:5,name:'Catalyst',items:['You are seen as an organisational visionary and thought leader.','You help entire organisations connect to purpose at every level.']}
+    ]},
+    {id:'G2',name:'Servant leadership & team development',desc:'Putting the growth and wellbeing of others first — enabling teams to become the best version of themselves.',indicators:[
+      {level:1,name:'Beginner',items:['You can describe what servant leadership means in practice.','You understand that leadership is about enabling others, not directing them.']},
+      {level:2,name:'Advanced beginner',items:['You actively look for ways to remove obstacles for your team.','You focus on the growth and wellbeing of those you work with.']},
+      {level:3,name:'Practitioner',items:['You consistently put the needs of the team above your own agenda.','You help teams become self-managing — and know when to step back.','You develop others\' leadership capabilities deliberately.']},
+      {level:4,name:'Guide',items:['You model servant leadership in ways that influence others to lead differently.','You develop the leadership capability of your entire organisation.']},
+      {level:5,name:'Catalyst',items:['You are a recognised authority on servant leadership.','Your impact on leadership culture is visible across organisations you have worked with.']}
+    ]},
+    {id:'G3',name:'Leadership in complex organisations',desc:'Leading without formal authority, navigating hierarchies, and exercising political intelligence.',indicators:[
+      {level:1,name:'Beginner',items:['You understand that influence without authority is different from traditional management.','You recognise how organisational politics affect change.']},
+      {level:2,name:'Advanced beginner',items:['You can build relationships across different levels of the hierarchy.','You understand the interests of different organisational stakeholders.']},
+      {level:3,name:'Practitioner',items:['You navigate complex organisational dynamics effectively.','You build coalitions and alliances to support transformation.','You know when to push, when to pause, and when to work around resistance.']},
+      {level:4,name:'Guide',items:['You advise on organisational politics with confidence and ethical clarity.','You help leaders understand the systemic implications of their decisions.']},
+      {level:5,name:'Catalyst',items:['You shape organisational culture at the executive level.','You are sought out for advice on complex leadership challenges in large organisations.']}
+    ]}
+   ]},
+  {id:'H',navLabel:'H · Transformation',title:'Transformation & change',desc:'Guiding sustainable change that allows individuals, teams, and organisations to be more effective — and to learn to change for themselves.',
+   skills:[
+    {id:'H1',name:'Change design & navigation',desc:'Understanding how to introduce, navigate, and sustain organisational change empirically and people-first.',indicators:[
+      {level:1,name:'Beginner',items:['You understand that organisations are complex and change is not linear.','You can name common change models and their limitations.']},
+      {level:2,name:'Advanced beginner',items:['You can describe the context for change and why it is needed.','You recognise when there is no appetite for change and know how to work with that.']},
+      {level:3,name:'Practitioner',items:['You design and facilitate change events empirically — with transparency, inspection, and adaptation.','You involve the people impacted by change in designing and implementing it.','You establish safe-to-fail experiments and help the organisation learn from them.']},
+      {level:4,name:'Guide',items:['You navigate complex multi-system change programmes with confidence.','You work with organisational tensions as a resource rather than a problem.']},
+      {level:5,name:'Catalyst',items:['You help organisations learn to change for themselves — your work makes you redundant by design.','You are a thought leader in organisational change.']}
+    ]},
+    {id:'H2',name:'Culture & learning culture',desc:'Understanding and shaping organisational culture — building environments of continuous learning, innovation, and coaching.',indicators:[
+      {level:1,name:'Beginner',items:['You understand what organisational culture means and why it matters.','You are aware that culture shapes how change lands.']},
+      {level:2,name:'Advanced beginner',items:['You can explain what a learning culture or coaching culture looks like.','You support others in their learning journeys.','You demonstrate your own continuous learning journey visibly.']},
+      {level:3,name:'Practitioner',items:['You create environments that actively support learning, innovation, and coaching.','You help organisations see failure as integral to innovation.','You demonstrate a shift from directive to non-directive approaches in your own practice.']},
+      {level:4,name:'Guide',items:['You apply structures and policies that evolve culture toward learning and coaching.','You challenge other business areas to allow for innovation and remove barriers.']},
+      {level:5,name:'Catalyst',items:['You nurture a learning culture even in the face of significant resistance.','You establish coaching as the default approach across an organisation.']}
+    ]},
+    {id:'H3',name:'Sustainability of transformation',desc:'Building internal capability so that change continues and deepens after your involvement ends.',indicators:[
+      {level:1,name:'Beginner',items:['You understand the difference between a successful rollout and a sustainable transformation.','You recognise the risk of transformations stalling when external support leaves.']},
+      {level:2,name:'Advanced beginner',items:['You actively support the growth of internal Agile champions.','You share knowledge and tools in ways that can be used without you.']},
+      {level:3,name:'Practitioner',items:['You build internal coaching and facilitation capacity as part of every engagement.','You measure and track the growth of internal capability over time.']},
+      {level:4,name:'Guide',items:['You design transformation programmes with sustainability as a first-order goal.','You help organisations deprecate ways of working that no longer serve them.']},
+      {level:5,name:'Catalyst',items:['Your transformations are characterised by their lasting impact.','You develop frameworks for sustainable transformation that others adopt.']}
+    ]}
+   ]},
+  {id:'I',navLabel:'I · Project mgmt',title:'Project management & administration',desc:'Keeping the operation running — from planning and coordination to documentation, vendor management, and budgets.',
+   skills:[
+    {id:'I1',name:'Planning & coordination',desc:'Creating plans, tracking milestones, coordinating tasks, and keeping projects on track.',indicators:[
+      {level:1,name:'Beginner',items:['You can follow and contribute to an existing project plan.','You track your own tasks reliably and communicate proactively.']},
+      {level:2,name:'Advanced beginner',items:['You create simple project plans with milestones and owners.','You coordinate tasks across a small group and surface blockers early.']},
+      {level:3,name:'Practitioner',items:['You manage complex projects with multiple workstreams and stakeholders.','You adapt plans quickly when circumstances change.','You keep all parties informed and aligned without over-engineering the process.']},
+      {level:4,name:'Guide',items:['You design project management approaches appropriate to the context.','You coach others in planning and coordination.']},
+      {level:5,name:'Catalyst',items:['You define the project management standards and operating model for the team or organisation.','You are a trusted expert in complex, multi-party coordination.']}
+    ]},
+    {id:'I2',name:'Documentation & knowledge management',desc:'Creating, maintaining, and structuring knowledge so it is accessible, up to date, and genuinely useful.',indicators:[
+      {level:1,name:'Beginner',items:['You understand why documentation matters and can follow an existing structure.','You can create clear, readable documents when given a template or brief.','You know where to find and store information in the team\'s knowledge system.']},
+      {level:2,name:'Advanced beginner',items:['You create and update documentation independently and keep it current.','You write for your audience — not just for yourself.','You navigate and contribute to tools like Sharepoint or Confluence confidently.']},
+      {level:3,name:'Practitioner',items:['You design and maintain documentation structures that others find intuitive.','You actively identify and fill gaps in the knowledge base.','You have built or significantly shaped at least one knowledge system used by others.']},
+      {level:4,name:'Guide',items:['You define knowledge management standards and information architecture.','You ensure knowledge is actively used and transferred — not just stored.','You coach others in good documentation practice.']},
+      {level:5,name:'Catalyst',items:['You build knowledge systems that outlive your involvement and continue to grow.','You introduce new approaches to knowledge management and inspire others to rethink how they work with information.']}
+    ]},
+    {id:'I3',name:'Vendor & resource management',desc:'Commissioning and managing external vendors, handling contracts and invoices, and keeping budgets in view.',indicators:[
+      {level:1,name:'Beginner',items:['You understand the basics of working with external vendors.','You are aware of compliance and administrative requirements for external contracts.']},
+      {level:2,name:'Advanced beginner',items:['You can prepare and process simple purchase orders or invoices.','You maintain clear records of vendor engagements and deliverables.']},
+      {level:3,name:'Practitioner',items:['You manage the full lifecycle of an external vendor engagement — from brief to payment.','You track budgets and flag overspend proactively.','You handle compliance and administrative requirements reliably.']},
+      {level:4,name:'Guide',items:['You design vendor management processes that are efficient and scalable.','You negotiate terms and manage vendor relationships strategically.']},
+      {level:5,name:'Catalyst',items:['You define procurement and vendor strategy for the team or organisation.','You are a trusted authority on vendor and resource management in complex environments.']}
+    ]}
+   ]},
+  {id:'J',navLabel:'J · Communication',title:'Communication & visibility',desc:'Communicating effectively internally and externally — and making the team\'s value visible to the right audiences.',
+   skills:[
+    {id:'J1',name:'Internal communication',desc:'Communicating clearly and transparently within the organisation — adapting to different audiences and contexts.',indicators:[
+      {level:1,name:'Beginner',items:['You communicate your work and progress clearly to your immediate colleagues.','You adapt your communication style to your audience in principle.']},
+      {level:2,name:'Advanced beginner',items:['You prepare targeted communications for different internal audiences.','You communicate proactively rather than reactively.']},
+      {level:3,name:'Practitioner',items:['You design communication strategies for complex change programmes.','You can communicate difficult or ambiguous messages with clarity and care.','You build communication channels that keep large groups aligned.']},
+      {level:4,name:'Guide',items:['You advise on internal communication strategy at an organisational level.','You coach others to communicate more effectively.']},
+      {level:5,name:'Catalyst',items:['You shape how organisations communicate about transformation and change.','You are a trusted advisor on complex internal communication challenges.']}
+    ]},
+    {id:'J2',name:'External communication & team visibility',desc:'Making the team\'s value visible — through presentations, reports, events, and how the team is positioned externally.',indicators:[
+      {level:1,name:'Beginner',items:['You can represent the team\'s work clearly in a meeting or presentation.','You understand why external visibility matters for the team.']},
+      {level:2,name:'Advanced beginner',items:['You create compelling reports and presentations about the team\'s impact.','You actively look for opportunities to highlight the team\'s work.']},
+      {level:3,name:'Practitioner',items:['You design and execute communication campaigns that build the team\'s reputation.','You adapt the team\'s story for different external audiences.','You create materials that make the team\'s value tangible and memorable.']},
+      {level:4,name:'Guide',items:['You strategically position the team within the organisation and beyond.','You coach team members in presenting their work effectively.']},
+      {level:5,name:'Catalyst',items:['The team\'s external reputation is significantly shaped by your communication work.','You help the team become a recognised centre of excellence.']}
+    ]},
+    {id:'J3',name:'Networking & community',desc:'Building and sustaining networks — inside and outside the organisation — including Communities of Practice and the Agile community.',indicators:[
+      {level:1,name:'Beginner',items:['You participate in Communities of Practice or professional networks.','You recognise the value of building relationships across organisational boundaries.']},
+      {level:2,name:'Advanced beginner',items:['You actively contribute to at least one community or network.','You build relationships intentionally, not just reactively.']},
+      {level:3,name:'Practitioner',items:['You facilitate or help sustain a Community of Practice.','You connect people and ideas across networks to create value.','You are recognised as a contributor in at least one professional community.']},
+      {level:4,name:'Guide',items:['You design and launch Communities of Practice.','You represent the team at conferences, events, or in professional networks.']},
+      {level:5,name:'Catalyst',items:['You are a recognised community leader and shaper.','Your network and reputation open doors for the team and organisation.']}
+    ]}
+   ]},
+  {id:'wildcards',navLabel:'★ Specialisms',type:'wildcards',title:'Specialisms & unique strengths',desc:'Add up to 3 skills, areas of expertise, or strengths not covered in the standard set. Rate them on the same 1–5 scale.'},
+  {id:'team-q',navLabel:'◎ Team level',type:'team-q',title:'Team-level reflection',desc:'These questions are about the team as a whole — what you observe collectively.'},
+  {id:'results',navLabel:'↗ My results',type:'results',title:'Results'}
 ];
 
-const CORE_BLOCKS = BLOCKS.filter(b=>b.skills);
-const ALL_SKILLS = CORE_BLOCKS.flatMap(b=>b.skills);
+const CORE_BLOCKS=BLOCKS.filter(b=>b.skills);
+const ALL_SKILLS=CORE_BLOCKS.flatMap(b=>b.skills);
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let S = { name:'', mode:'', cur:0, scores:{}, teamAnswer:'', feedback:'', viewingTeam:false, peerTarget:'' };
-let BIN_ID = null;
-let DB = { submissions:[] };
-let chartSelf=null, chartTeam=null;
+let S={name:'',mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:''},feedback:'',viewingTeam:false,peerTarget:''};
+let DB={submissions:[]};
+let chartSelf=null,chartTeam=null;
 
-// ─── JSONBIN API ──────────────────────────────────────────────────────────────
-async function initDB() {
-  // Try to find existing bin
-  try {
-    const r = await fetch(`${JSONBIN_BASE}/b?tagName=${BIN_NAME}`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    const data = await r.json();
-    if(data.result && data.result.length > 0) {
-      BIN_ID = data.result[0].record.metadata.id;
-      await loadDB();
-      return;
-    }
-  } catch(e) {}
+// ─── JSONBIN ──────────────────────────────────────────────────────────────────
+async function initDB(){ await loadDB(); }
 
-  // Create new bin
-  try {
-    const r = await fetch(`${JSONBIN_BASE}/b`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY,
-        'X-Bin-Name': BIN_NAME,
-        'X-Bin-Private': 'true'
-      },
-      body: JSON.stringify({ submissions: [] })
-    });
-    const data = await r.json();
-    BIN_ID = data.metadata.id;
-    DB = { submissions: [] };
-  } catch(e) {
-    console.error('JSONBin init failed', e);
-  }
+async function loadDB(){
+  try{
+    const r=await fetch(`${JSONBIN_BASE}/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':JSONBIN_KEY}});
+    const data=await r.json();
+    DB=data.record||{submissions:[]};
+  }catch(e){console.error('loadDB failed',e);}
 }
 
-async function loadDB() {
-  if(!BIN_ID) return;
-  try {
-    const r = await fetch(`${JSONBIN_BASE}/b/${BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    const data = await r.json();
-    DB = data.record || { submissions: [] };
-  } catch(e) { console.error('loadDB failed', e); }
+async function saveDB(){
+  try{
+    await fetch(`${JSONBIN_BASE}/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},body:JSON.stringify(DB)});
+  }catch(e){console.error('saveDB failed',e);}
 }
 
-async function saveDB() {
-  if(!BIN_ID) return;
-  try {
-    await fetch(`${JSONBIN_BASE}/b/${BIN_ID}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify(DB)
-    });
-  } catch(e) { console.error('saveDB failed', e); }
-}
+function slug(s){return(s||'').toLowerCase().replace(/\s+/g,'_');}
 
-function slug(s){ return (s||'').toLowerCase().replace(/\s+/g,'_'); }
-
-function upsertSubmission(obj) {
-  if(!DB.submissions) DB.submissions = [];
-  const key = obj.mode==='self' ? `self:${slug(obj.name)}` : `peer:${slug(obj.peerTarget)}:${slug(obj.name)}`;
-  const idx = DB.submissions.findIndex(s=>s._key===key);
-  const entry = { ...obj, _key:key, savedAt: new Date().toISOString() };
-  if(idx>=0) DB.submissions[idx] = entry;
+function upsertSubmission(obj){
+  if(!DB.submissions)DB.submissions=[];
+  const key=obj.mode==='self'?`self:${slug(obj.name)}`:`peer:${slug(obj.peerTarget)}:${slug(obj.name)}`;
+  const idx=DB.submissions.findIndex(s=>s._key===key);
+  const entry={...obj,_key:key,savedAt:new Date().toISOString()};
+  if(idx>=0)DB.submissions[idx]=entry;
   else DB.submissions.push(entry);
 }
 
-async function saveMyData() {
-  upsertSubmission({ name:S.name, mode:S.mode, peerTarget:S.peerTarget, scores:S.scores, teamAnswer:S.teamAnswer, feedback:S.feedback });
+async function saveMyData(){
+  upsertSubmission({name:S.name,mode:S.mode,peerTarget:S.peerTarget,scores:S.scores,wildcards:S.wildcards,teamAnswers:S.teamAnswers,feedback:S.feedback});
   await saveDB();
 }
 
-function getSelfs() { return (DB.submissions||[]).filter(s=>s.mode==='self'); }
-function getPeers() { return (DB.submissions||[]).filter(s=>s.mode==='peer'); }
-
-function loadMyData() {
-  const key = `self:${slug(S.name)}`;
-  const existing = (DB.submissions||[]).find(s=>s._key===key);
-  if(existing) { S.scores=existing.scores||{}; S.teamAnswer=existing.teamAnswer||''; S.feedback=existing.feedback||''; return true; }
+function loadMyData(){
+  const key=`self:${slug(S.name)}`;
+  const ex=(DB.submissions||[]).find(s=>s._key===key);
+  if(ex){S.scores=ex.scores||{};S.wildcards=ex.wildcards||S.wildcards;S.teamAnswers=ex.teamAnswers||S.teamAnswers;S.feedback=ex.feedback||'';return true;}
   return false;
 }
 
+function getSelfs(){return(DB.submissions||[]).filter(s=>s.mode==='self');}
+function getPeers(){return(DB.submissions||[]).filter(s=>s.mode==='peer');}
+
 // ─── NAV ─────────────────────────────────────────────────────────────────────
-function renderNav() {
-  const total = BLOCKS.length;
-  const pct = S.viewingTeam ? 100 : (S.cur/(total-1))*100;
-  document.getElementById('pb').style.width = pct+'%';
-  document.getElementById('pbLabel').textContent = S.viewingTeam ? 'team view' : `${S.cur} / ${total-1}`;
-  document.getElementById('sidebarName').textContent = S.name || '';
-  const mi = document.getElementById('modeIndicator');
-  if(S.mode==='self') mi.innerHTML='<span class="mode-indicator mode-self">◉ self-assessment</span>';
-  else if(S.mode==='peer') mi.innerHTML=`<span class="mode-indicator mode-peer">◎ rating ${S.peerTarget}</span>`;
+function renderNav(){
+  const total=BLOCKS.length;
+  const pct=S.viewingTeam?100:(S.cur/(total-1))*100;
+  document.getElementById('pb').style.width=pct+'%';
+  document.getElementById('pbLabel').textContent=S.viewingTeam?'team view':`${S.cur} / ${total-1}`;
+  document.getElementById('sidebarName').textContent=S.name||'';
+  const mi=document.getElementById('modeIndicator');
+  if(S.mode==='self')mi.innerHTML='<span class="mode-indicator mode-self">◉ self-assessment</span>';
+  else if(S.mode==='peer')mi.innerHTML=`<span class="mode-indicator mode-peer">◎ rating ${S.peerTarget}</span>`;
   else mi.innerHTML='';
   const el=document.getElementById('nav');
   el.innerHTML='';
   BLOCKS.forEach((b,i)=>{
-    if(b.id==='intro') return;
+    if(b.id==='intro')return;
     const done=b.skills&&b.skills.every(s=>{const sc=S.scores[s.id];return sc&&(sc.nr||sc.v);});
     const btn=document.createElement('button');
     btn.className='nav-item'+(!S.viewingTeam&&i===S.cur?' active':'')+(done?' done':'');
@@ -416,49 +506,23 @@ function renderNav() {
     el.appendChild(btn);
   });
   const tb=document.getElementById('teamOverviewBtn');
-  if(tb) tb.className='nav-special-btn'+(S.viewingTeam?' active':'');
+  if(tb)tb.className='nav-special-btn'+(S.viewingTeam?' active':'');
 }
 
 // ─── SKILL CARD ───────────────────────────────────────────────────────────────
-function skillCard(s) {
-  const sc=S.scores[s.id]||{}, nr=sc.nr||false;
+function skillCard(s){
+  const sc=S.scores[s.id]||{},nr=sc.nr||false;
   const rb=[1,2,3,4,5].map(n=>`<button class="rb${sc.v===n?' s'+n:''}" data-s="${s.id}" data-v="${n}">${n}</button>`).join('');
   const ll=['Beginner','Adv.beg.','Practitioner','Guide','Catalyst'].map(n=>`<div class="ll">${n}</div>`).join('');
-  const ind=s.indicators.map(ind=>`
-    <div class="ind-level">
-      <div class="in c${ind.level}">${ind.level}</div>
-      <div class="ic">
-        <div class="iname">${ind.name}</div>
-        <ul class="ilist">${ind.items.map(it=>`<li>${it}</li>`).join('')}</ul>
-      </div>
-    </div>`).join('');
-  return `<div class="skill-card">
-    <div class="skill-card-header">
-      <div>
-        <div class="skill-id">${s.id}</div>
-        <div class="skill-name">${s.name}</div>
-        <div class="skill-subdesc">${s.desc}</div>
-      </div>
-      <button class="nr-btn${nr?' active':''}" data-s="${s.id}">${nr?'n/a':'mark n/a'}</button>
-    </div>
-    <div class="skill-body${nr?' dimmed':''}" id="body-${s.id}">
-      <div class="rating-row">${rb}</div>
-      <div class="lvl-labels">${ll}</div>
-      <button class="ind-toggle" data-s="${s.id}"><span>▾</span> level indicators</button>
-      <div class="ind-panel" id="ind-${s.id}">${ind}</div>
-    </div>
-  </div>`;
+  const ind=s.indicators.map(ind=>`<div class="ind-level"><div class="in c${ind.level}">${ind.level}</div><div class="ic"><div class="iname">${ind.name}</div><ul class="ilist">${ind.items.map(it=>`<li>${it}</li>`).join('')}</ul></div></div>`).join('');
+  return `<div class="skill-card"><div class="skill-card-header"><div><div class="skill-id">${s.id}</div><div class="skill-name">${s.name}</div><div class="skill-subdesc">${s.desc}</div></div><button class="nr-btn${nr?' active':''}" data-s="${s.id}">${nr?'n/a':'mark n/a'}</button></div><div class="skill-body${nr?' dimmed':''}" id="body-${s.id}"><div class="rating-row">${rb}</div><div class="lvl-labels">${ll}</div><button class="ind-toggle" data-s="${s.id}"><span>▾</span> level indicators</button><div class="ind-panel" id="ind-${s.id}">${ind}</div></div></div>`;
 }
 
-function footer(cur,total) {
-  return `<div class="nav-footer">
-    ${cur>1?`<button class="btn btn-g" id="prevBtn">← back</button>`:'<span></span>'}
-    <span class="nav-ctr">${cur} of ${total-1}</span>
-    <button class="btn btn-p" id="nextBtn">${cur===total-2?'see results →':'next →'}</button>
-  </div>`;
+function footer(cur,total){
+  return `<div class="nav-footer">${cur>1?`<button class="btn btn-g" id="prevBtn">← back</button>`:'<span></span>'}<span class="nav-ctr">${cur} of ${total-1}</span><button class="btn btn-p" id="nextBtn">${cur===total-2?'see results →':'next →'}</button></div>`;
 }
 
-function attachSkillEvents(block) {
+function attachSkillEvents(block){
   document.querySelectorAll('.rb').forEach(btn=>{
     btn.onclick=async()=>{
       const id=btn.dataset.s,val=parseInt(btn.dataset.v);
@@ -493,59 +557,37 @@ function attachSkillEvents(block) {
 }
 
 // ─── SCREENS ─────────────────────────────────────────────────────────────────
-async function renderMain() {
+async function renderMain(){
   const m=document.getElementById('main');
   const total=BLOCKS.length;
-  if(S.viewingTeam){ await renderTeamOverview(m); return; }
+  if(S.viewingTeam){await renderTeamOverview(m);return;}
   const b=BLOCKS[S.cur];
 
   // INTRO
-  if(b.type==='intro') {
+  if(b.type==='intro'){
     await loadDB();
     const selfNames=getSelfs().map(s=>s.name);
     m.innerHTML=`<div class="intro-screen">
-      <h2>Atom<br><em>Skills Assessment</em></h2>
-      <p>Rate yourself or a colleague across 3 sample skills on a 1–5 scale. Level indicators are available inline for each skill. Results are saved automatically.</p>
+      <h2>Team<br><em>Skills Assessment</em></h2>
+      <p>Rate yourself across 10 competency areas using a scale of 1–5. Level indicators are available inline for each of the 30 skills. You can also anonymously rate a colleague. Results are saved automatically.</p>
       <div class="mode-cards">
-        <div class="mode-card" id="modeCardSelf">
-          <div class="mode-card-icon">◉</div>
-          <div class="mode-card-title">Self-assessment</div>
-          <div class="mode-card-desc">Rate your own skills honestly and reflect on your level.</div>
-        </div>
-        <div class="mode-card" id="modeCardPeer">
-          <div class="mode-card-icon">◎</div>
-          <div class="mode-card-title">Rate a colleague</div>
-          <div class="mode-card-desc">Anonymously rate another team member's skills.</div>
-        </div>
+        <div class="mode-card" id="modeCardSelf"><div class="mode-card-icon">◉</div><div class="mode-card-title">Self-assessment</div><div class="mode-card-desc">Rate your own skills honestly across all 10 competency areas.</div></div>
+        <div class="mode-card" id="modeCardPeer"><div class="mode-card-icon">◎</div><div class="mode-card-title">Rate a colleague</div><div class="mode-card-desc">Anonymously rate another team member's skills.</div></div>
       </div>
-      <div class="ni-wrap">
-        <label>Your name</label>
-        <input type="text" id="nameInput" placeholder="First name" value="${S.name}" />
-      </div>
+      <div class="ni-wrap"><label>Your name</label><input type="text" id="nameInput" placeholder="First name" value="${S.name}" /></div>
       <div id="peerTargetWrap" style="display:none">
         <div class="peer-select-wrap">
           <label>Who are you rating?</label>
           ${selfNames.length>0
-            ?`<select class="peer-select" id="peerSelect">
-                <option value="">— select a colleague —</option>
-                ${selfNames.map(n=>`<option value="${n}"${S.peerTarget===n?' selected':''}>${n}</option>`).join('')}
-              </select>`
-            :`<p class="peer-warning">No self-assessments found yet.<br>Ask your colleagues to complete their self-assessment first, then come back to rate them.</p>`
-          }
+            ?`<select class="peer-select" id="peerSelect"><option value="">— select a colleague —</option>${selfNames.map(n=>`<option value="${n}"${S.peerTarget===n?' selected':''}>${n}</option>`).join('')}</select>`
+            :`<p class="peer-warning">No self-assessments found yet.<br>Ask your colleagues to complete their self-assessment first, then come back to rate them.</p>`}
         </div>
       </div>
       <button class="btn btn-p" id="startBtn">begin →</button>
     </div>`;
-
     let selMode=S.mode||'';
-    const cs=document.getElementById('modeCardSelf');
-    const cp=document.getElementById('modeCardPeer');
-    const pw=document.getElementById('peerTargetWrap');
-    function upd(){
-      cs.className='mode-card'+(selMode==='self'?' selected-self':'');
-      cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');
-      pw.style.display=selMode==='peer'?'block':'none';
-    }
+    const cs=document.getElementById('modeCardSelf'),cp=document.getElementById('modeCardPeer'),pw=document.getElementById('peerTargetWrap');
+    function upd(){cs.className='mode-card'+(selMode==='self'?' selected-self':'');cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');pw.style.display=selMode==='peer'?'block':'none';}
     upd();
     cs.onclick=()=>{selMode='self';S.mode='self';upd();};
     cp.onclick=()=>{selMode='peer';S.mode='peer';upd();};
@@ -554,48 +596,64 @@ async function renderMain() {
     document.getElementById('startBtn').onclick=()=>{
       const n=document.getElementById('nameInput').value.trim();
       if(!n){document.getElementById('nameInput').focus();return;}
-      if(!selMode) return;
-      if(selMode==='peer'&&!S.peerTarget) return;
-      S.name=n; S.mode=selMode;
-      if(selMode==='self') loadMyData();
-      else { S.scores={}; S.teamAnswer=''; S.feedback=''; }
-      S.cur=1; render(); window.scrollTo(0,0);
+      if(!selMode)return;
+      if(selMode==='peer'&&!S.peerTarget)return;
+      S.name=n;S.mode=selMode;
+      if(selMode==='self')loadMyData();
+      else{S.scores={};S.wildcards=[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}];S.teamAnswers={K1:'',K2:'',K3:'',K4:''};S.feedback='';}
+      S.cur=1;render();window.scrollTo(0,0);
     };
     return;
   }
 
-  // TEAM QUESTION
-  if(b.type==='team-q') {
-    m.innerHTML=`
-      <div class="block-tag">team level</div>
-      <h2 class="block-title">Team-level <em>reflection</em></h2>
-      <p class="block-desc">${b.desc}</p>
-      <div class="team-q">
-        <div class="tq-title">Collective strengths</div>
-        <div class="tq-desc">What can we do together that none of us could do alone? Think about how our combination of skills, styles, and experiences creates something greater than the sum of parts.</div>
-        <textarea class="tq-ta" id="teamAns" placeholder="Your thoughts…">${S.teamAnswer}</textarea>
-      </div>
-      ${footer(S.cur,total)}`;
-    document.getElementById('teamAns').oninput=async e=>{S.teamAnswer=e.target.value;await saveMyData();};
+  // WILDCARDS
+  if(b.type==='wildcards'){
+    const cards=S.wildcards.map((wc,i)=>`
+      <div class="wildcard-card">
+        <div class="wc-grid">
+          <div class="form-group"><label class="form-label">Skill or strength</label><input class="form-input wc-name" data-i="${i}" placeholder="e.g. Change management, OKR facilitation…" value="${wc.name}"/></div>
+          <div class="form-group"><label class="form-label">Category</label><input class="form-input wc-cat" data-i="${i}" placeholder="e.g. Strategy" value="${wc.category}"/></div>
+          <div class="form-group"><label class="form-label">Level</label><input type="number" class="wc-score" data-i="${i}" min="1" max="5" placeholder="1–5" value="${wc.score}"/></div>
+        </div>
+      </div>`).join('');
+    m.innerHTML=`<div class="block-tag">wildcards</div><h2 class="block-title">Specialisms & <em>unique strengths</em></h2><p class="block-desc">${b.desc}</p>${cards}${footer(S.cur,total)}`;
+    document.querySelectorAll('.wc-name').forEach(el=>el.oninput=async e=>{S.wildcards[e.target.dataset.i].name=e.target.value;await saveMyData();});
+    document.querySelectorAll('.wc-cat').forEach(el=>el.oninput=async e=>{S.wildcards[e.target.dataset.i].category=e.target.value;await saveMyData();});
+    document.querySelectorAll('.wc-score').forEach(el=>el.oninput=async e=>{S.wildcards[e.target.dataset.i].score=e.target.value;await saveMyData();});
+    document.getElementById('nextBtn').onclick=()=>{S.cur++;render();window.scrollTo(0,0);};
+    document.getElementById('prevBtn')&&(document.getElementById('prevBtn').onclick=()=>{S.cur--;render();window.scrollTo(0,0);});
+    return;
+  }
+
+  // TEAM QUESTIONS
+  if(b.type==='team-q'){
+    const questions=[
+      {id:'K1',title:'Collective strengths',placeholder:'What can we do together that none of us could do alone? Think about how our combination of skills, styles, and experiences creates something greater than the sum of parts.'},
+      {id:'K2',title:'Complementarity & interplay',placeholder:'Where do our skills and approaches complement each other best? Are there specific combinations that work particularly well?'},
+      {id:'K3',title:'Team culture & ways of working',placeholder:'What does working in this team feel like — for us and for the people we work with? What values and norms define how we show up together?'},
+      {id:'K4',title:'External identity & reputation',placeholder:'How is our team seen by the people we work with? What do they come to us for? What is our "signature" as a team?'}
+    ];
+    const qs=questions.map(q=>`<div class="team-q"><div class="tq-title">${q.title}</div><textarea class="tq-ta" id="${q.id}" placeholder="${q.placeholder}">${S.teamAnswers[q.id]||''}</textarea></div>`).join('');
+    m.innerHTML=`<div class="block-tag">team level</div><h2 class="block-title">Team-level <em>reflection</em></h2><p class="block-desc">${b.desc}</p>${qs}${footer(S.cur,total)}`;
+    questions.forEach(q=>{document.getElementById(q.id).oninput=async e=>{S.teamAnswers[q.id]=e.target.value;await saveMyData();};});
     document.getElementById('nextBtn').onclick=()=>{S.cur++;render();window.scrollTo(0,0);};
     document.getElementById('prevBtn')&&(document.getElementById('prevBtn').onclick=()=>{S.cur--;render();window.scrollTo(0,0);});
     return;
   }
 
   // RESULTS
-  if(b.type==='results') {
+  if(b.type==='results'){
     await loadDB();
-    const labels=CORE_BLOCKS.map(b=>b.navLabel);
+    const labels=CORE_BLOCKS.map(b=>b.navLabel.split(' · ')[1]||b.navLabel);
     const selfData=CORE_BLOCKS.map(b=>{
       const vals=b.skills.map(s=>{const sc=S.scores[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);
       return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;
     });
-
-    let peerData=null, peerCount=0;
-    if(S.mode==='self') {
+    let peerData=null,peerCount=0;
+    if(S.mode==='self'){
       const myPeers=getPeers().filter(p=>p.peerTarget===S.name);
       peerCount=myPeers.length;
-      if(myPeers.length>0) {
+      if(myPeers.length>0){
         peerData=CORE_BLOCKS.map(b=>{
           const vals=[];
           myPeers.forEach(p=>b.skills.forEach(s=>{const sc=(p.scores||{})[s.id]||{};if(!sc.nr&&sc.v)vals.push(sc.v);}));
@@ -603,82 +661,54 @@ async function renderMain() {
         });
       }
     }
-
     const detailRows=ALL_SKILLS.map(s=>{
-      const sc=S.scores[s.id]||{};
-      const sv=sc.nr?null:(sc.v||null);
-      let peerVal=null;
-      if(peerData) {
-        const bIdx=CORE_BLOCKS.findIndex(b=>b.skills.some(x=>x.id===s.id));
-        peerVal=bIdx>=0?peerData[bIdx]:null;
-      }
-      return `<div class="result-row">
-        <div class="rl"><span>${s.id}</span>${s.name}</div>
-        <div style="display:flex;gap:16px;align-items:center">
-          ${sv?`<div class="score-chip"><div class="score-dot" style="background:#FFC800"></div><span style="color:#FFC800;font-weight:500">${sv}</span><span style="font-size:9px;color:var(--text-hint);margin-left:2px">self</span></div>`:`<span style="font-size:10px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">N/A</span>`}
-          ${peerVal?`<div class="score-chip"><div class="score-dot" style="background:#55C3F0"></div><span style="color:#55C3F0;font-weight:500">${peerVal}</span><span style="font-size:9px;color:var(--text-hint);margin-left:2px">peers</span></div>`:''}
-        </div>
-      </div>`;
+      const sc=S.scores[s.id]||{},sv=sc.nr?null:(sc.v||null);
+      return `<div class="result-row"><div class="rl"><span>${s.id}</span>${s.name}</div><div style="display:flex;gap:16px;align-items:center">${sv?`<div class="score-chip"><div class="score-dot" style="background:#FFC800"></div><span style="color:#FFC800;font-weight:500">${sv}</span><span style="font-size:10px;color:var(--text-hint);margin-left:2px">self</span></div>`:`<span style="font-size:11px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">N/A</span>`}</div></div>`;
     }).join('');
 
     m.innerHTML=`
       <div class="block-tag">results</div>
       <h2 class="block-title">${S.name?S.name+"'s":'Your'} <em>profile</em></h2>
-      <p class="block-desc">${S.mode==='self'
-        ?peerCount>0?`Your self-assessment with ${peerCount} peer rating${peerCount>1?'s':''} overlaid.`
-        :'Your self-assessment. Peer ratings will appear once colleagues have rated you.'
-        :`Your anonymous rating of ${S.peerTarget}.`}
-      </p>
-      ${S.mode==='self'?`<div class="save-banner">
-        <p>✓ Saved. Go back at any time to update your answers.</p>
-        <button class="btn btn-sky btn-sm" id="viewTeamBtn">team overview →</button>
-      </div>`:''}
+      <p class="block-desc">${S.mode==='self'?peerCount>0?`Your self-assessment with ${peerCount} peer rating${peerCount>1?'s':''} overlaid.`:'Your self-assessment is saved. Peer ratings will appear here once colleagues have rated you.':`Your anonymous rating of ${S.peerTarget} is saved.`}</p>
+      ${S.mode==='self'?`<div class="save-banner"><p>✓ Saved automatically. Go back at any time to update your answers.</p><button class="btn btn-sky btn-sm" id="viewTeamBtn">team overview →</button></div>`:''}
+      <div class="next-action-banner">
+        <h3>What would you like to do next?</h3>
+        <p>${S.mode==='self'?'You can now rate a colleague, go back to update answers, or view the team overview.':'You can go back to rate another colleague, or return to start your own self-assessment.'}</p>
+        <div class="btn-row">
+          ${S.mode==='self'?`<button class="btn btn-p btn-sm" id="ratePeerBtn">◎ Rate a colleague →</button>`:''}
+          <button class="btn btn-g btn-sm" id="goStartBtn">↩ Back to start</button>
+        </div>
+      </div>
       <div class="results-header">
         <div class="legend-item"><div class="legend-line" style="background:#FFC800"></div>self-assessment</div>
         ${peerData?`<div class="legend-item"><div class="legend-line" style="background:#55C3F0"></div>peer average (${peerCount})</div>`:''}
       </div>
-      <div class="radar-wrap">
-        <h3>radar — average per block</h3>
-        <canvas id="rc" height="290"></canvas>
-      </div>
+      <div class="radar-wrap"><h3>radar — average per block</h3><canvas id="rc" height="300"></canvas></div>
       <div class="results-detail">${detailRows}</div>
-      ${S.mode==='self'?`<div class="fb-box">
-        <h3>Pilot feedback</h3>
-        <textarea class="tq-ta" id="fbArea" placeholder="How did the format feel? Were the level indicators useful? Anything missing?">${S.feedback}</textarea>
-      </div>`:''}
-      <div class="exp-row">
-        <button class="btn btn-g" id="restBtn">start over</button>
-      </div>`;
+      ${S.mode==='self'?`<div class="fb-box"><h3>Pilot feedback</h3><textarea class="tq-ta" id="fbArea" placeholder="How did the format feel? Were the level indicators useful? Anything missing?">${S.feedback}</textarea></div>`:''}`;
 
     document.getElementById('fbArea')&&(document.getElementById('fbArea').oninput=async e=>{S.feedback=e.target.value;await saveMyData();});
     document.getElementById('viewTeamBtn')&&(document.getElementById('viewTeamBtn').onclick=()=>{S.viewingTeam=true;render();});
-    document.getElementById('restBtn').onclick=()=>{
-      if(confirm('Clear your session and start over?')){
-        S={name:'',mode:'',cur:0,scores:{},teamAnswer:'',feedback:'',viewingTeam:false,peerTarget:''};
-        render();
-      }
+
+    // Back to start — keep name, switch mode to peer
+    document.getElementById('ratePeerBtn')&&(document.getElementById('ratePeerBtn').onclick=()=>{
+      S.mode='peer';S.peerTarget='';S.scores={};
+      S.cur=0;render();window.scrollTo(0,0);
+    });
+
+    document.getElementById('goStartBtn').onclick=()=>{
+      S={name:S.name,mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:''},feedback:'',viewingTeam:false,peerTarget:''};
+      render();window.scrollTo(0,0);
     };
 
-    if(window.Chart) {
+    if(window.Chart){
       if(chartSelf){chartSelf.destroy();chartSelf=null;}
-      const datasets=[{
-        label:'self',data:selfData,
-        backgroundColor:'rgba(255,200,0,0.1)',borderColor:'#FFC800',borderWidth:2,
-        pointBackgroundColor:'#FFC800',pointRadius:4
-      }];
-      if(peerData) datasets.push({
-        label:`peer avg (${peerCount})`,data:peerData,
-        backgroundColor:'rgba(85,195,240,0.08)',borderColor:'#55C3F0',borderWidth:2,
-        borderDash:[5,4],pointBackgroundColor:'#55C3F0',pointRadius:4
-      });
+      const datasets=[{label:'self',data:selfData,backgroundColor:'rgba(255,200,0,0.1)',borderColor:'#FFC800',borderWidth:2,pointBackgroundColor:'#FFC800',pointRadius:4}];
+      if(peerData)datasets.push({label:`peer avg (${peerCount})`,data:peerData,backgroundColor:'rgba(85,195,240,0.08)',borderColor:'#55C3F0',borderWidth:2,borderDash:[5,4],pointBackgroundColor:'#55C3F0',pointRadius:4});
       chartSelf=new Chart(document.getElementById('rc'),{
         type:'radar',
         data:{labels,datasets},
-        options:{
-          responsive:true,
-          scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:10},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:11,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},
-          plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:11,family:'JetBrains Mono'},boxWidth:16,padding:16}}}
-        }
+        options:{responsive:true,scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:11},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:12,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:12,family:'JetBrains Mono'},boxWidth:16,padding:16}}}}
       });
     }
     return;
@@ -693,104 +723,52 @@ async function renderMain() {
 }
 
 // ─── TEAM OVERVIEW ────────────────────────────────────────────────────────────
-async function renderTeamOverview(m) {
+async function renderTeamOverview(m){
   m.innerHTML=`<div class="loading">loading team data…</div>`;
   await loadDB();
-  const selfs=getSelfs(), peers=getPeers();
-  const labels=CORE_BLOCKS.map(b=>b.navLabel);
+  const selfs=getSelfs(),peers=getPeers();
+  const labels=CORE_BLOCKS.map(b=>b.navLabel.split(' · ')[1]||b.navLabel);
   const names=selfs.map(s=>s.name);
-
-  const chips=names.map(n=>{
-    const ini=n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    const pc=peers.filter(p=>p.peerTarget===n).length;
-    return `<div class="person-chip"><div class="p-avatar">${ini}</div>${n}${pc>0?`<span class="p-count">${pc} peer${pc>1?'s':''}</span>`:''}</div>`;
-  }).join('');
-
-  const headerCells=names.map(n=>`<th style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap">${n.split(' ')[0]}</th>`).join('');
-
-  function cell(v) {
-    if(!v) return `<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">—</span></td>`;
-    const cols=['','rgba(85,195,240,0.5)','#55C3F0','#FF7800','#FFC800','#FFC800'];
-    return `<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:500;color:${cols[v]}">${v}</span></td>`;
-  }
-
-  const skillRows=ALL_SKILLS.map(s=>{
-    const cells=names.map(n=>{
-      const sub=selfs.find(x=>x.name===n);
-      if(!sub) return cell(null);
-      const sc=(sub.scores||{})[s.id]||{};
-      if(sc.nr) return `<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">n/a</span></td>`;
-      return cell(sc.v||null);
-    }).join('');
-    return `<tr><td style="font-size:12px;color:var(--text-muted);padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-family:'JetBrains Mono',monospace;color:var(--yellow);font-size:10px;margin-right:6px">${s.id}</span>${s.name}</td>${cells}</tr>`;
-  }).join('');
-
+  const chips=names.map(n=>{const ini=n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);const pc=peers.filter(p=>p.peerTarget===n).length;return `<div class="person-chip"><div class="p-avatar">${ini}</div>${n}${pc>0?`<span class="p-count">${pc} peer${pc>1?'s':''}</span>`:''}</div>`;}).join('');
+  const headerCells=names.map(n=>`<th style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap">${n.split(' ')[0]}</th>`).join('');
+  function cell(v){if(!v)return`<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:11px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">—</span></td>`;const cols=['','rgba(85,195,240,0.5)','#55C3F0','#FF7800','#FFC800','#FFC800'];return`<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:14px;font-family:'JetBrains Mono',monospace;font-weight:500;color:${cols[v]}">${v}</span></td>`;}
+  const skillRows=ALL_SKILLS.map(s=>{const cells=names.map(n=>{const sub=selfs.find(x=>x.name===n);if(!sub)return cell(null);const sc=(sub.scores||{})[s.id]||{};if(sc.nr)return`<td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-size:11px;color:var(--text-hint);font-family:'JetBrains Mono',monospace">n/a</span></td>`;return cell(sc.v||null);}).join('');return`<tr><td style="font-size:13px;color:var(--text-muted);padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="font-family:'JetBrains Mono',monospace;color:var(--yellow);font-size:11px;margin-right:6px">${s.id}</span>${s.name}</td>${cells}</tr>`;}).join('');
   const colors=['#FFC800','#55C3F0','#FF7800','#D70000','#89D5F5','#FFD440','#FF9D40'];
-  const datasets=selfs.map((sub,i)=>{
-    const data=CORE_BLOCKS.map(b=>{
-      const vals=b.skills.map(s=>{const sc=(sub.scores||{})[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);
-      return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;
-    });
-    const col=colors[i%colors.length];
-    return{label:sub.name,data,backgroundColor:col+'18',borderColor:col,borderWidth:1.5,pointBackgroundColor:col,pointRadius:3};
-  });
-
-  const teamAvg=CORE_BLOCKS.map(b=>{
-    const vals=[];
-    selfs.forEach(sub=>b.skills.forEach(s=>{const sc=(sub.scores||{})[s.id]||{};if(!sc.nr&&sc.v)vals.push(sc.v);}));
-    return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;
-  });
-  if(selfs.length>1) datasets.push({label:'team avg',data:teamAvg,backgroundColor:'transparent',borderColor:'rgba(232,244,255,0.35)',borderWidth:2.5,borderDash:[4,3],pointBackgroundColor:'rgba(232,244,255,0.35)',pointRadius:3});
-
-  const teamAnswers=selfs.filter(s=>s.teamAnswer).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.teamAnswer}</div></div>`).join('');
+  const datasets=selfs.map((sub,i)=>{const data=CORE_BLOCKS.map(b=>{const vals=b.skills.map(s=>{const sc=(sub.scores||{})[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;});const col=colors[i%colors.length];return{label:sub.name,data,backgroundColor:col+'18',borderColor:col,borderWidth:1.5,pointBackgroundColor:col,pointRadius:3};});
+  const teamAvg=CORE_BLOCKS.map(b=>{const vals=[];selfs.forEach(sub=>b.skills.forEach(s=>{const sc=(sub.scores||{})[s.id]||{};if(!sc.nr&&sc.v)vals.push(sc.v);}));return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;});
+  if(selfs.length>1)datasets.push({label:'team avg',data:teamAvg,backgroundColor:'transparent',borderColor:'rgba(232,244,255,0.35)',borderWidth:2.5,borderDash:[4,3],pointBackgroundColor:'rgba(232,244,255,0.35)',pointRadius:3});
+  const teamAnswerSections=['K1','K2','K3','K4'].map((k,i)=>{const titles=['Collective strengths','Complementarity & interplay','Team culture & ways of working','External identity & reputation'];const answers=selfs.filter(s=>s.teamAnswers&&s.teamAnswers[k]).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.teamAnswers[k]}</div></div>`).join('');return answers?`<div class="section-wrap"><div class="section-title">${titles[i]}</div>${answers}</div>`:''}).join('');
   const feedbackItems=selfs.filter(s=>s.feedback).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.feedback}</div></div>`).join('');
 
   m.innerHTML=`
     <div class="block-tag">team overview</div>
     <h2 class="block-title">Team <em>results</em></h2>
     <p class="block-desc">${selfs.length} self-assessment${selfs.length!==1?'s':''} · ${peers.length} peer rating${peers.length!==1?'s':''} · updates on refresh</p>
-    <div class="who-row">${chips||'<span style="font-size:12px;color:var(--text-hint)">no submissions yet</span>'}</div>
+    <div class="who-row">${chips||'<span style="font-size:13px;color:var(--text-hint)">no submissions yet</span>'}</div>
     ${selfs.length>0?`
-    <div class="section-wrap">
-      <div class="section-title">radar — self-assessments + team average</div>
-      <div class="radar-wrap"><canvas id="overviewRadar" height="320"></canvas></div>
-    </div>
-    <div class="section-wrap">
-      <div class="section-title">individual scores by skill</div>
+    <div class="section-wrap"><div class="section-title">radar — self-assessments + team average</div><div class="radar-wrap"><canvas id="overviewRadar" height="340"></canvas></div></div>
+    <div class="section-wrap"><div class="section-title">individual scores by skill</div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto">
         <table style="width:100%;border-collapse:collapse">
-          <thead><tr>
-            <th style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border)">skill</th>
-            ${headerCells}
-          </tr></thead>
+          <thead><tr><th style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border)">skill</th>${headerCells}</tr></thead>
           <tbody>${skillRows}</tbody>
         </table>
       </div>
     </div>
-    ${teamAnswers?`<div class="section-wrap"><div class="section-title">team question — collective strengths</div>${teamAnswers}</div>`:''}
+    ${teamAnswerSections}
     ${feedbackItems?`<div class="section-wrap"><div class="section-title">pilot feedback</div>${feedbackItems}</div>`:''}
     <div class="exp-row"><button class="btn btn-g" id="refreshBtn">↻ refresh</button></div>`
-    :'<p style="color:var(--text-hint);font-size:13px;font-family:\'JetBrains Mono\',monospace">no results yet — be the first to complete the assessment.</p>'}`;
+    :'<p style="color:var(--text-hint);font-size:14px;font-family:\'JetBrains Mono\',monospace">no results yet — be the first to complete the assessment.</p>'}`;
 
   if(selfs.length>0&&window.Chart){
     if(chartTeam){chartTeam.destroy();chartTeam=null;}
-    chartTeam=new Chart(document.getElementById('overviewRadar'),{
-      type:'radar',
-      data:{labels,datasets},
-      options:{
-        responsive:true,
-        scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:10},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:11,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},
-        plugins:{legend:{position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:11,family:'JetBrains Mono'},boxWidth:16,padding:12}}}
-      }
-    });
+    chartTeam=new Chart(document.getElementById('overviewRadar'),{type:'radar',data:{labels,datasets},options:{responsive:true,scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:11},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:12,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},plugins:{legend:{position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:12,family:'JetBrains Mono'},boxWidth:16,padding:12}}}}});
   }
   document.getElementById('refreshBtn')&&(document.getElementById('refreshBtn').onclick=()=>render());
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-async function render() { renderNav(); await renderMain(); }
+async function render(){renderNav();await renderMain();}
 document.getElementById('teamOverviewBtn').onclick=()=>{S.viewingTeam=true;render();};
-
 initDB().then(()=>render());
 </script>
 </body>
