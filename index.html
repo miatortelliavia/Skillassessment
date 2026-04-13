@@ -507,7 +507,7 @@ function renderNav(){
     el.appendChild(btn);
   });
   const tb=document.getElementById('teamOverviewBtn');
-  if(tb)tb.className='nav-special-btn'+(S.viewingTeam?' active':'');
+  if(tb){const selfDone=Object.keys(S.scores||{}).length>=30;tb.style.display=selfDone?'flex':'none';tb.className='nav-special-btn'+(S.viewingTeam?' active':'');}
 }
 
 // ─── SKILL CARD ───────────────────────────────────────────────────────────────
