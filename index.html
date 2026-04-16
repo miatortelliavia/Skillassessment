@@ -441,8 +441,7 @@ let DB={submissions:[]};
 let chartSelf=null,chartTeam=null;
 
 // ─── JSONBIN ──────────────────────────────────────────────────────────────────
-let dbReady = null;
-function initDB(){ dbReady = loadDB(); }
+async function initDB(){ await loadDB(); }
 
 async function loadDB(){
   try{
@@ -470,7 +469,7 @@ function upsertSubmission(obj){
 }
 
 async function saveMyData(){
-  await dbReady;
+  await loadDB();
   upsertSubmission({name:S.name,mode:S.mode,peerTarget:S.peerTarget,scores:S.scores,wildcards:S.wildcards,teamAnswers:S.teamAnswers,feedback:S.feedback});
   await saveDB();
 }
@@ -508,7 +507,7 @@ function renderNav(){
     el.appendChild(btn);
   });
   const tb=document.getElementById('teamOverviewBtn');
-  if(tb){const selfDone=Object.keys(S.scores||{}).length>=30;tb.style.display=selfDone?'flex':'none';tb.className='nav-special-btn'+(S.viewingTeam?' active':'');}
+  if(tb)tb.className='nav-special-btn'+(S.viewingTeam?' active':'');
 }
 
 // ─── SKILL CARD ───────────────────────────────────────────────────────────────
@@ -567,8 +566,8 @@ async function renderMain(){
 
   // INTRO
   if(b.type==='intro'){
-    // DB loads in background; use what's available now, refresh on peer-mode select
-    const selfNames = DB ? getSelfs().map(s=>s.name) : [];
+    await loadDB();
+    const selfNames=getSelfs().map(s=>s.name);
     m.innerHTML=`<div class="intro-screen">
       <h2>Team<br><em>Skills Assessment</em></h2>
       <p>Rate yourself across 10 competency areas using a scale of 1–5. Level indicators are available inline for each of the 30 skills. You can also anonymously rate a colleague. Results are saved automatically.</p>
@@ -592,11 +591,9 @@ async function renderMain(){
     function upd(){cs.className='mode-card'+(selMode==='self'?' selected-self':'');cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');pw.style.display=selMode==='peer'?'block':'none';}
     upd();
     cs.onclick=()=>{selMode='self';S.mode='self';upd();};
-    cp.onclick=async()=>{selMode='peer';S.mode='peer';await dbReady;render();};
+    cp.onclick=()=>{selMode='peer';S.mode='peer';upd();};
     document.getElementById('nameInput').oninput=e=>{S.name=e.target.value;};
     document.getElementById('peerSelect')&&(document.getElementById('peerSelect').onchange=e=>{S.peerTarget=e.target.value;});
-    // Once DB loads, re-render intro to populate peer dropdown
-    dbReady.then(()=>{if(S.cur===0)render();});
     document.getElementById('startBtn').onclick=()=>{
       const n=document.getElementById('nameInput').value.trim();
       if(!n){document.getElementById('nameInput').focus();return;}
@@ -647,7 +644,7 @@ async function renderMain(){
 
   // RESULTS
   if(b.type==='results'){
-    await dbReady;
+    await loadDB();
     const labels=CORE_BLOCKS.map(b=>b.navLabel.split(' · ')[1]||b.navLabel);
     const selfData=CORE_BLOCKS.map(b=>{
       const vals=b.skills.map(s=>{const sc=S.scores[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);
@@ -773,7 +770,7 @@ async function renderTeamOverview(m){
 
 async function render(){renderNav();await renderMain();}
 document.getElementById('teamOverviewBtn').onclick=()=>{S.viewingTeam=true;render();};
-initDB(); render();
+initDB().then(()=>render());
 </script>
 </body>
 </html>
