@@ -655,10 +655,10 @@ async function renderMain(){
     document.getElementById('peerSelect')&&(document.getElementById('peerSelect').onchange=e=>{S.peerTarget=e.target.value;});
     document.getElementById('startBtn').onclick=()=>{
       const n=document.getElementById('nameInput').value.trim();
-      if(!n){document.getElementById('nameInput').focus();return;}
+      if(selMode!=='peer'&&!n){document.getElementById('nameInput').focus();return;}
       if(!selMode)return;
       if(selMode==='peer'&&!S.peerTarget)return;
-      S.name=n;S.mode=selMode;
+      S.name=n||'Anonymous';S.mode=selMode;
       if(selMode==='self')loadMyData();
       else{S.scores={};S.wildcards=[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}];S.teamAnswers={K1:'',K2:'',K3:'',K4:''};S.feedback='';}
       S.cur=1;render();window.scrollTo(0,0);
