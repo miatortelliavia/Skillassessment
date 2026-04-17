@@ -428,9 +428,14 @@ What meaningful learning exchanges would benefit this team most?
 Be specific, reference actual scores and names. Direct and useful tone — this is a professional team.`;
 
   try{
-    const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const response=await fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({type:'claude_analysis',prompt:prompt})
+    });
     const data=await response.json();
-    const text=data.content?.find(c=>c.type==='text')?.text||'No response received.';
+    if(data.error){throw new Error(data.error);}
+    const text=data.text||'No response received.';
     const rendered=text.replace(/### (.+)/g,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
     aiContent.innerHTML=`<div class="ai-content">${rendered}</div>`;
     btn.textContent='↺ regenerate';btn.disabled=false;
