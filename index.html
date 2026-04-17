@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 :root{--yellow:#FFC800;--orange:#FF7800;--red:#D70000;--navy:#00005F;--sky:#55C3F0;--navy-dark:#000040;--surface:#00004A;--surface2:#000038;--border:rgba(85,195,240,0.15);--border-bright:rgba(85,195,240,0.35);--text:#E8F4FF;--text-muted:rgba(232,244,255,0.62);--text-hint:rgba(232,244,255,0.32)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Space Grotesk',sans-serif;background:var(--navy-dark);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:17px}
+body{font-family:'Space Grotesk',sans-serif;background:var(--navy-dark);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:19px}
 .atom-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;pointer-events:none;z-index:0;opacity:0.04}
 .app{display:flex;min-height:100vh;position:relative;z-index:1}
 .sidebar{width:248px;min-width:248px;background:var(--surface2);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
@@ -447,7 +447,7 @@ const BLOCKS=[
 const CORE_BLOCKS=BLOCKS.filter(b=>b.skills);
 const ALL_SKILLS=CORE_BLOCKS.flatMap(b=>b.skills);
 
-let S={name:'',mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:''},feedback:'',viewingTeam:false,peerTarget:''};
+let S={name:'',mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:'',K5:''},feedback:'',viewingTeam:false,peerTarget:''};
 let DB={submissions:[]};
 let chartSelf=null,chartTeam=null;
 
@@ -513,7 +513,7 @@ async function saveMyData(){
 function loadMyData(){
   const key=`self:${slug(S.name)}`;
   const ex=(DB.submissions||[]).find(s=>s._key===key);
-  if(ex){S.scores=ex.scores||{};S.wildcards=ex.wildcards||S.wildcards;S.teamAnswers=ex.teamAnswers||S.teamAnswers;S.feedback=ex.feedback||'';return true;}
+  if(ex){S.scores=ex.scores||{};S.wildcards=ex.wildcards||S.wildcards;while(S.wildcards.length<7)S.wildcards.push({name:'',category:'',score:''});S.teamAnswers=ex.teamAnswers||S.teamAnswers;S.teamAnswers.K5=S.teamAnswers.K5||'';S.feedback=ex.feedback||'';return true;}
   return false;
 }
 
@@ -631,7 +631,7 @@ async function renderMain(){
         <div class="mode-card" id="modeCardSelf"><div class="mode-card-icon">◉</div><div class="mode-card-title">Self-assessment</div><div class="mode-card-desc">Rate your own skills honestly across all 10 competency areas.</div></div>
         <div class="mode-card" id="modeCardPeer"><div class="mode-card-icon">◎</div><div class="mode-card-title">Rate a colleague</div><div class="mode-card-desc">Anonymously rate another team member's skills.</div></div>
       </div>
-      <div class="ni-wrap"><label>Your name</label><input type="text" id="nameInput" placeholder="First name" value="${S.name}" /></div>
+      <div class="ni-wrap"><label>Your name <span id="nameOptionalHint" style="display:none;color:var(--text-hint);font-weight:400">(optional — rating is anonymous)</span></label><input type="text" id="nameInput" placeholder="First name" value="${S.name}" /></div>
       <div id="peerTargetWrap" style="display:none">
         <div class="peer-select-wrap">
           <label>Who are you rating?</label>
@@ -644,8 +644,7 @@ async function renderMain(){
     </div>`;
     let selMode=S.mode||'';
     const cs=document.getElementById('modeCardSelf'),cp=document.getElementById('modeCardPeer'),pw=document.getElementById('peerTargetWrap');
-    function upd(){cs.className='mode-card'+(selMode==='self'?' selected-self':'');cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');pw.style.display=selMode==='peer'?'block':'none';}
-    upd();
+    function upd(){cs.className='mode-card'+(selMode==='self'?' selected-self':'');cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');pw.style.display=selMode==='peer'?'block':'none';const hint=document.getElementById('nameOptionalHint');if(hint)hint.style.display=selMode==='peer'?'inline':'';}upd();
     cs.onclick=()=>{selMode='self';S.mode='self';upd();};
     cp.onclick=async()=>{
       selMode='peer';S.mode='peer';upd();
@@ -669,6 +668,7 @@ async function renderMain(){
 
   // WILDCARDS
   if(b.type==='wildcards'){
+    while(S.wildcards.length<7)S.wildcards.push({name:'',category:'',score:''});
     const cards=S.wildcards.map((wc,i)=>`
       <div class="wildcard-card">
         <div class="wc-grid">
@@ -686,13 +686,15 @@ async function renderMain(){
     return;
   }
 
-  // TEAM QUESTIONS
+  // TEAM QUESTIONS — only for self-assessment
   if(b.type==='team-q'){
+    if(S.mode==='peer'){S.cur++;render();window.scrollTo(0,0);return;}
     const questions=[
       {id:'K1',title:'Collective strengths',placeholder:'What can we do together that none of us could do alone?'},
       {id:'K2',title:'Complementarity & interplay',placeholder:'Where do our skills and approaches complement each other best?'},
       {id:'K3',title:'Team culture & ways of working',placeholder:'What does working in this team feel like — for us and for the people we work with?'},
-      {id:'K4',title:'External identity & reputation',placeholder:'How is our team seen by the people we work with?'}
+      {id:'K4',title:'External identity & reputation',placeholder:'How is our team seen by the people we work with? What do they come to us for? What is our "signature" as a team?'},
+      {id:'K5',title:'Achievements & impact',placeholder:'What have we already achieved or shaped together? List results, milestones, metrics, or moments you are proud of — things we can point to.'}
     ];
     const qs=questions.map(q=>`<div class="team-q"><div class="tq-title">${q.title}</div><textarea class="tq-ta" id="${q.id}" placeholder="${q.placeholder}">${S.teamAnswers[q.id]||''}</textarea></div>`).join('');
     m.innerHTML=`<div class="block-tag">team level</div><h2 class="block-title">Team-level <em>reflection</em></h2><p class="block-desc">${b.desc}</p>${qs}${footer(S.cur,total)}`;
@@ -729,8 +731,8 @@ async function renderMain(){
 
     m.innerHTML=`
       <div class="block-tag">results</div>
-      <h2 class="block-title">${S.name?S.name+"'s":'Your'} <em>profile</em></h2>
-      <p class="block-desc">${S.mode==='self'?peerCount>0?`Your self-assessment with ${peerCount} peer rating${peerCount>1?'s':''} overlaid.`:'Your self-assessment is saved. Peer ratings will appear here once colleagues have rated you.':`Your anonymous rating of ${S.peerTarget} is saved.`}</p>
+      <h2 class="block-title">${S.mode==='peer'?`Your ratings for <em>${S.peerTarget}</em>`:(S.name?S.name+"'s":'Your')+' <em>profile</em>'}</h2>
+      <p class="block-desc">${S.mode==='self'?peerCount>0?`Your self-assessment with ${peerCount} peer rating${peerCount>1?'s':''} overlaid.`:'Your self-assessment is saved. Peer ratings will appear here once colleagues have rated you.':`Your anonymous ratings for ${S.peerTarget} have been saved.`}</p>
       ${S.mode==='self'?`<div class="save-banner"><p>✓ Saved to Google Sheets. Go back at any time to update your answers.</p><span id="saveStatus" class="save-status"></span><button class="btn btn-sky btn-sm" id="viewTeamBtn">team overview →</button></div>`:'<span id="saveStatus" class="save-status" style="display:block;margin-bottom:1rem"></span>'}
       <div class="next-action-banner">
         <h3>What would you like to do next?</h3>
@@ -750,8 +752,8 @@ async function renderMain(){
 
     document.getElementById('fbArea')&&(document.getElementById('fbArea').oninput=async e=>{S.feedback=e.target.value;await saveMyData();});
     document.getElementById('viewTeamBtn')&&(document.getElementById('viewTeamBtn').onclick=()=>{S.viewingTeam=true;render();});
-    document.getElementById('ratePeerBtn')&&(document.getElementById('ratePeerBtn').onclick=()=>{S.mode='peer';S.peerTarget='';S.scores={};S.cur=0;render();window.scrollTo(0,0);});
-    document.getElementById('goStartBtn').onclick=()=>{S={name:S.name,mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:''},feedback:'',viewingTeam:false,peerTarget:''};render();window.scrollTo(0,0);};
+    document.getElementById('ratePeerBtn')&&(document.getElementById('ratePeerBtn').onclick=()=>{S.mode='peer';S.peerTarget='';S.scores={};S.wildcards=[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}];S.cur=0;render();window.scrollTo(0,0);});
+    document.getElementById('goStartBtn').onclick=()=>{S={name:S.name,mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:'',K5:''},feedback:'',viewingTeam:false,peerTarget:''};render();window.scrollTo(0,0);};
 
     if(window.Chart){
       if(chartSelf){chartSelf.destroy();chartSelf=null;}
@@ -785,7 +787,7 @@ async function renderTeamOverview(m){
   const datasets=selfs.map((sub,i)=>{const data=CORE_BLOCKS.map(b=>{const vals=b.skills.map(s=>{const sc=(sub.scores||{})[s.id]||{};return sc.nr?null:(sc.v||null);}).filter(v=>v!==null);return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;});const col=colors[i%colors.length];return{label:sub.name,data,backgroundColor:col+'18',borderColor:col,borderWidth:1.5,pointBackgroundColor:col,pointRadius:3};});
   const teamAvg=CORE_BLOCKS.map(b=>{const vals=[];selfs.forEach(sub=>b.skills.forEach(s=>{const sc=(sub.scores||{})[s.id]||{};if(!sc.nr&&sc.v)vals.push(sc.v);}));return vals.length?Math.round(vals.reduce((a,c)=>a+c,0)/vals.length*10)/10:0;});
   if(selfs.length>1)datasets.push({label:'team avg',data:teamAvg,backgroundColor:'transparent',borderColor:'rgba(232,244,255,0.35)',borderWidth:2.5,borderDash:[4,3],pointBackgroundColor:'rgba(232,244,255,0.35)',pointRadius:3});
-  const teamAnswerSections=['K1','K2','K3','K4'].map((k,i)=>{const titles=['Collective strengths','Complementarity & interplay','Team culture & ways of working','External identity & reputation'];const answers=selfs.filter(s=>s.teamAnswers&&s.teamAnswers[k]).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.teamAnswers[k]}</div></div>`).join('');return answers?`<div class="section-wrap"><div class="section-title">${titles[i]}</div>${answers}</div>`:''}).join('');
+  const teamAnswerSections=['K1','K2','K3','K4','K5'].map((k,i)=>{const titles=['Collective strengths','Complementarity & interplay','Team culture & ways of working','External identity & reputation','Achievements & impact'];const answers=selfs.filter(s=>s.teamAnswers&&s.teamAnswers[k]).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.teamAnswers[k]}</div></div>`).join('');return answers?`<div class="section-wrap"><div class="section-title">${titles[i]}</div>${answers}</div>`:''}).join('');
   const feedbackItems=selfs.filter(s=>s.feedback).map(s=>`<div class="ta-card"><div class="ta-author">${s.name}</div><div class="ta-text">${s.feedback}</div></div>`).join('');
 
   m.innerHTML=`
