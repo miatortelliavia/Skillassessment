@@ -649,14 +649,17 @@ async function renderMain(){
     cp.onclick=async()=>{
       selMode='peer';S.mode='peer';upd();
       await loadDB();
-      render(); // re-render to refresh peer list
+      // Peer-Liste aktualisieren ohne selMode zu verlieren
+      const selfNames2=getSelfs().map(s=>s.name);
+      const pw2=document.getElementById('peerTargetWrap');
+      if(pw2){pw2.innerHTML=`<div class="peer-select-wrap"><label>Who are you rating?</label>${selfNames2.length>0?`<select class="peer-select" id="peerSelect"><option value="">— select a colleague —</option>${selfNames2.map(n=>`<option value="${n}"${S.peerTarget===n?' selected':''}>${n}</option>`).join('')}</select>`:`<p class="peer-warning">No self-assessments found yet.<br>Ask your colleagues to complete their self-assessment first, then come back to rate them.</p>`}</div>`;document.getElementById('peerSelect')&&(document.getElementById('peerSelect').onchange=e=>{S.peerTarget=e.target.value;});}
     };
     document.getElementById('nameInput').oninput=e=>{S.name=e.target.value;};
     document.getElementById('peerSelect')&&(document.getElementById('peerSelect').onchange=e=>{S.peerTarget=e.target.value;});
     document.getElementById('startBtn').onclick=()=>{
       const n=document.getElementById('nameInput').value.trim();
-      if(selMode!=='peer'&&!n){document.getElementById('nameInput').focus();return;}
-      if(!selMode)return;
+      if(!selMode){alert('Please choose Self-assessment or Rate a colleague first.');return;}
+      if(selMode==='self'&&!n){document.getElementById('nameInput').focus();return;}
       if(selMode==='peer'&&!S.peerTarget)return;
       S.name=n||'Anonymous';S.mode=selMode;
       if(selMode==='self')loadMyData();
