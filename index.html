@@ -145,6 +145,14 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--navy-dark);color:va
 .form-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:15px;font-family:'Space Grotesk',sans-serif;color:var(--text);background:var(--surface2);outline:none;transition:border-color .15s}
 .form-input:focus{border-color:var(--sky)}
 .wc-score{border:1px solid var(--border);border-radius:8px;padding:9px;font-size:18px;font-weight:500;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--surface2);width:60px;text-align:center;outline:none}
+/* Export button */
+.btn-export{background:rgba(85,195,240,0.1);color:var(--sky);border:1px solid rgba(85,195,240,0.25);font-family:'JetBrains Mono',monospace;font-size:12px}
+.btn-export:hover{background:rgba(85,195,240,0.2)}
+/* Save status indicator */
+.save-status{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-hint);display:inline-flex;align-items:center;gap:5px;transition:all .3s}
+.save-status.saving{color:var(--sky)}
+.save-status.saved{color:rgba(85,195,240,0.6)}
+.save-status.error{color:var(--orange)}
 </style>
 </head>
 <body>
@@ -182,9 +190,12 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--navy-dark);color:va
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const JSONBIN_KEY='$2a$10$CpcUKnPa1n/z1qovDsXIRuCo228X/6LuY29zx5QLAo/mPIdOctUuO';
-const JSONBIN_BASE='https://api.jsonbin.io/v3';
-const BIN_ID='69dcce00856a6821892b25ed';
+// ════════════════════════════════════════════════════════════════
+// ⚙️  KONFIGURATION — nur diese eine Zeile musst du ändern!
+// Füge deine Google Apps Script Web-App-URL hier ein:
+// ════════════════════════════════════════════════════════════════
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwQWs1cGuzob_PXLpS0n2cwszKIGJEPrKiipgQ2KDpEvwFPMik1yk5jDa0Hk_WhCXvPEA/exec';
+// ════════════════════════════════════════════════════════════════
 
 const BLOCKS=[
   {id:'intro',navLabel:'Start',type:'intro'},
@@ -440,28 +451,53 @@ let S={name:'',mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''}
 let DB={submissions:[]};
 let chartSelf=null,chartTeam=null;
 
-// ─── JSONBIN ──────────────────────────────────────────────────────────────────
-async function initDB(){ await loadDB(); }
-
+// ─── GOOGLE SHEETS API ────────────────────────────────────────────────────────
 async function loadDB(){
   try{
-    const r=await fetch(`${JSONBIN_BASE}/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':JSONBIN_KEY}});
+    // Google Apps Script gibt CORS-Antworten zurück, kein mode:'cors' nötig
+    const r=await fetch(GAS_URL,{method:'GET'});
     const data=await r.json();
-    DB=data.record||{submissions:[]};
-  }catch(e){console.error('loadDB failed',e);}
+    DB=data||{submissions:[]};
+  }catch(e){
+    console.error('loadDB failed',e);
+    if(!DB.submissions)DB.submissions=[];
+  }
 }
 
 async function saveDB(){
   try{
-    await fetch(`${JSONBIN_BASE}/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},body:JSON.stringify(DB)});
-  }catch(e){console.error('saveDB failed',e);}
+    setSaveStatus('saving');
+    await fetch(GAS_URL,{
+      method:'POST',
+      // Google Apps Script benötigt text/plain bei no-cors oder direkt JSON mit CORS
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(buildPayload())
+    });
+    setSaveStatus('saved');
+  }catch(e){
+    console.error('saveDB failed',e);
+    setSaveStatus('error');
+  }
+}
+
+function buildPayload(){
+  const key=S.mode==='self'?`self:${slug(S.name)}`:`peer:${slug(S.peerTarget)}:${slug(S.name)}`;
+  return{_key:key,name:S.name,mode:S.mode,peerTarget:S.peerTarget,scores:S.scores,wildcards:S.wildcards,teamAnswers:S.teamAnswers,feedback:S.feedback,savedAt:new Date().toISOString()};
+}
+
+function setSaveStatus(status){
+  const el=document.getElementById('saveStatus');
+  if(!el)return;
+  if(status==='saving'){el.textContent='● saving…';el.className='save-status saving';}
+  else if(status==='saved'){el.textContent='✓ saved';el.className='save-status saved';setTimeout(()=>{el.textContent='';},2000);}
+  else if(status==='error'){el.textContent='⚠ save failed';el.className='save-status error';}
 }
 
 function slug(s){return(s||'').toLowerCase().replace(/\s+/g,'_');}
 
 function upsertSubmission(obj){
   if(!DB.submissions)DB.submissions=[];
-  const key=obj.mode==='self'?`self:${slug(obj.name)}`:`peer:${slug(obj.peerTarget)}:${slug(obj.name)}`;
+  const key=obj._key||( obj.mode==='self'?`self:${slug(obj.name)}`:`peer:${slug(obj.peerTarget)}:${slug(obj.name)}`);
   const idx=DB.submissions.findIndex(s=>s._key===key);
   const entry={...obj,_key:key,savedAt:new Date().toISOString()};
   if(idx>=0)DB.submissions[idx]=entry;
@@ -469,8 +505,8 @@ function upsertSubmission(obj){
 }
 
 async function saveMyData(){
-  await loadDB();
-  upsertSubmission({name:S.name,mode:S.mode,peerTarget:S.peerTarget,scores:S.scores,wildcards:S.wildcards,teamAnswers:S.teamAnswers,feedback:S.feedback});
+  const payload=buildPayload();
+  upsertSubmission(payload); // optimistic local update
   await saveDB();
 }
 
@@ -483,6 +519,26 @@ function loadMyData(){
 
 function getSelfs(){return(DB.submissions||[]).filter(s=>s.mode==='self');}
 function getPeers(){return(DB.submissions||[]).filter(s=>s.mode==='peer');}
+
+// ─── CSV EXPORT ───────────────────────────────────────────────────────────────
+function exportCSV(){
+  const selfs=getSelfs();
+  if(!selfs.length){alert('Keine Daten zum Exportieren.');return;}
+  const headers=['Name','Mode','PeerTarget','SavedAt',...ALL_SKILLS.map(s=>s.id)];
+  const rows=DB.submissions.map(sub=>{
+    const skillCols=ALL_SKILLS.map(s=>{
+      const sc=(sub.scores||{})[s.id]||{};
+      return sc.nr?'n/a':(sc.v||'');
+    });
+    return[sub.name,sub.mode,sub.peerTarget||'',sub.savedAt||'',...skillCols];
+  });
+  const csv=[headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='skills_assessment_export.csv';a.click();
+  URL.revokeObjectURL(url);
+}
 
 // ─── NAV ─────────────────────────────────────────────────────────────────────
 function renderNav(){
@@ -591,7 +647,11 @@ async function renderMain(){
     function upd(){cs.className='mode-card'+(selMode==='self'?' selected-self':'');cp.className='mode-card'+(selMode==='peer'?' selected-peer':'');pw.style.display=selMode==='peer'?'block':'none';}
     upd();
     cs.onclick=()=>{selMode='self';S.mode='self';upd();};
-    cp.onclick=()=>{selMode='peer';S.mode='peer';upd();};
+    cp.onclick=async()=>{
+      selMode='peer';S.mode='peer';upd();
+      await loadDB();
+      render(); // re-render to refresh peer list
+    };
     document.getElementById('nameInput').oninput=e=>{S.name=e.target.value;};
     document.getElementById('peerSelect')&&(document.getElementById('peerSelect').onchange=e=>{S.peerTarget=e.target.value;});
     document.getElementById('startBtn').onclick=()=>{
@@ -629,10 +689,10 @@ async function renderMain(){
   // TEAM QUESTIONS
   if(b.type==='team-q'){
     const questions=[
-      {id:'K1',title:'Collective strengths',placeholder:'What can we do together that none of us could do alone? Think about how our combination of skills, styles, and experiences creates something greater than the sum of parts.'},
-      {id:'K2',title:'Complementarity & interplay',placeholder:'Where do our skills and approaches complement each other best? Are there specific combinations that work particularly well?'},
-      {id:'K3',title:'Team culture & ways of working',placeholder:'What does working in this team feel like — for us and for the people we work with? What values and norms define how we show up together?'},
-      {id:'K4',title:'External identity & reputation',placeholder:'How is our team seen by the people we work with? What do they come to us for? What is our "signature" as a team?'}
+      {id:'K1',title:'Collective strengths',placeholder:'What can we do together that none of us could do alone?'},
+      {id:'K2',title:'Complementarity & interplay',placeholder:'Where do our skills and approaches complement each other best?'},
+      {id:'K3',title:'Team culture & ways of working',placeholder:'What does working in this team feel like — for us and for the people we work with?'},
+      {id:'K4',title:'External identity & reputation',placeholder:'How is our team seen by the people we work with?'}
     ];
     const qs=questions.map(q=>`<div class="team-q"><div class="tq-title">${q.title}</div><textarea class="tq-ta" id="${q.id}" placeholder="${q.placeholder}">${S.teamAnswers[q.id]||''}</textarea></div>`).join('');
     m.innerHTML=`<div class="block-tag">team level</div><h2 class="block-title">Team-level <em>reflection</em></h2><p class="block-desc">${b.desc}</p>${qs}${footer(S.cur,total)}`;
@@ -671,7 +731,7 @@ async function renderMain(){
       <div class="block-tag">results</div>
       <h2 class="block-title">${S.name?S.name+"'s":'Your'} <em>profile</em></h2>
       <p class="block-desc">${S.mode==='self'?peerCount>0?`Your self-assessment with ${peerCount} peer rating${peerCount>1?'s':''} overlaid.`:'Your self-assessment is saved. Peer ratings will appear here once colleagues have rated you.':`Your anonymous rating of ${S.peerTarget} is saved.`}</p>
-      ${S.mode==='self'?`<div class="save-banner"><p>✓ Saved automatically. Go back at any time to update your answers.</p><button class="btn btn-sky btn-sm" id="viewTeamBtn">team overview →</button></div>`:''}
+      ${S.mode==='self'?`<div class="save-banner"><p>✓ Saved to Google Sheets. Go back at any time to update your answers.</p><span id="saveStatus" class="save-status"></span><button class="btn btn-sky btn-sm" id="viewTeamBtn">team overview →</button></div>`:'<span id="saveStatus" class="save-status" style="display:block;margin-bottom:1rem"></span>'}
       <div class="next-action-banner">
         <h3>What would you like to do next?</h3>
         <p>${S.mode==='self'?'You can now rate a colleague, go back to update answers, or view the team overview.':'You can go back to rate another colleague, or return to start your own self-assessment.'}</p>
@@ -690,33 +750,20 @@ async function renderMain(){
 
     document.getElementById('fbArea')&&(document.getElementById('fbArea').oninput=async e=>{S.feedback=e.target.value;await saveMyData();});
     document.getElementById('viewTeamBtn')&&(document.getElementById('viewTeamBtn').onclick=()=>{S.viewingTeam=true;render();});
-
-    // Back to start — keep name, switch mode to peer
-    document.getElementById('ratePeerBtn')&&(document.getElementById('ratePeerBtn').onclick=()=>{
-      S.mode='peer';S.peerTarget='';S.scores={};
-      S.cur=0;render();window.scrollTo(0,0);
-    });
-
-    document.getElementById('goStartBtn').onclick=()=>{
-      S={name:S.name,mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:''},feedback:'',viewingTeam:false,peerTarget:''};
-      render();window.scrollTo(0,0);
-    };
+    document.getElementById('ratePeerBtn')&&(document.getElementById('ratePeerBtn').onclick=()=>{S.mode='peer';S.peerTarget='';S.scores={};S.cur=0;render();window.scrollTo(0,0);});
+    document.getElementById('goStartBtn').onclick=()=>{S={name:S.name,mode:'',cur:0,scores:{},wildcards:[{name:'',category:'',score:''},{name:'',category:'',score:''},{name:'',category:'',score:''}],teamAnswers:{K1:'',K2:'',K3:'',K4:''},feedback:'',viewingTeam:false,peerTarget:''};render();window.scrollTo(0,0);};
 
     if(window.Chart){
       if(chartSelf){chartSelf.destroy();chartSelf=null;}
       const datasets=[{label:'self',data:selfData,backgroundColor:'rgba(255,200,0,0.1)',borderColor:'#FFC800',borderWidth:2,pointBackgroundColor:'#FFC800',pointRadius:4}];
       if(peerData)datasets.push({label:`peer avg (${peerCount})`,data:peerData,backgroundColor:'rgba(85,195,240,0.08)',borderColor:'#55C3F0',borderWidth:2,borderDash:[5,4],pointBackgroundColor:'#55C3F0',pointRadius:4});
-      chartSelf=new Chart(document.getElementById('rc'),{
-        type:'radar',
-        data:{labels,datasets},
-        options:{responsive:true,scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:11},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:12,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:12,family:'JetBrains Mono'},boxWidth:16,padding:16}}}}
-      });
+      chartSelf=new Chart(document.getElementById('rc'),{type:'radar',data:{labels,datasets},options:{responsive:true,scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:11},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:12,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:12,family:'JetBrains Mono'},boxWidth:16,padding:16}}}}});
     }
     return;
   }
 
   // STANDARD SKILL BLOCK
-  let html=`<div class="block-tag">block ${b.id}</div><h2 class="block-title">${b.title}</h2><p class="block-desc">${b.desc}</p>`;
+  let html=`<div class="block-tag">block ${b.id}</div><h2 class="block-title">${b.title}</h2><p class="block-desc">${b.desc}</p><span id="saveStatus" class="save-status" style="display:block;margin-bottom:1rem;text-align:right"></span>`;
   b.skills.forEach(s=>{html+=skillCard(s);});
   html+=footer(S.cur,total);
   m.innerHTML=html;
@@ -758,7 +805,10 @@ async function renderTeamOverview(m){
     </div>
     ${teamAnswerSections}
     ${feedbackItems?`<div class="section-wrap"><div class="section-title">pilot feedback</div>${feedbackItems}</div>`:''}
-    <div class="exp-row"><button class="btn btn-g" id="refreshBtn">↻ refresh</button></div>`
+    <div class="exp-row">
+      <button class="btn btn-g" id="refreshBtn">↻ refresh</button>
+      <button class="btn btn-export" id="exportBtn">↓ export CSV</button>
+    </div>`
     :'<p style="color:var(--text-hint);font-size:14px;font-family:\'JetBrains Mono\',monospace">no results yet — be the first to complete the assessment.</p>'}`;
 
   if(selfs.length>0&&window.Chart){
@@ -766,11 +816,12 @@ async function renderTeamOverview(m){
     chartTeam=new Chart(document.getElementById('overviewRadar'),{type:'radar',data:{labels,datasets},options:{responsive:true,scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:11},color:'rgba(232,244,255,0.3)',backdropColor:'transparent'},grid:{color:'rgba(85,195,240,0.1)'},angleLines:{color:'rgba(85,195,240,0.1)'},pointLabels:{font:{size:12,family:'Space Grotesk'},color:'rgba(232,244,255,0.6)'}}},plugins:{legend:{position:'bottom',labels:{color:'rgba(232,244,255,0.6)',font:{size:12,family:'JetBrains Mono'},boxWidth:16,padding:12}}}}});
   }
   document.getElementById('refreshBtn')&&(document.getElementById('refreshBtn').onclick=()=>render());
+  document.getElementById('exportBtn')&&(document.getElementById('exportBtn').onclick=exportCSV);
 }
 
 async function render(){renderNav();await renderMain();}
 document.getElementById('teamOverviewBtn').onclick=()=>{S.viewingTeam=true;render();};
-initDB().then(()=>render());
+loadDB().then(()=>render());
 </script>
 </body>
 </html>
